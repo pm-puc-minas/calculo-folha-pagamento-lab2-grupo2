@@ -1,6 +1,6 @@
 public class FolhaDePagamento {
 
 
-    teste
+    teste;
 
 }
