@@ -1,4 +1,4 @@
 package com.rh.folhaPagamento.model;
 
-public interface Descontos {
+public interface Beneficio {
 }

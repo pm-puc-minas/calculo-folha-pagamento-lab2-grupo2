@@ -1,14 +1,22 @@
+package com.rh.folhaPagamento.model;
 
-public class Funcionario
-{
-    private String nome;
-    private String cpf;
-}
-public class Funcionario
-{
+public class Funcionario {
+    private long id;
     private String nome;
     private String cpf;
     private String cargo;
+    private Usuario usuario;
+    private int dependentes;
+    private double salario;
     private double salarioBase;
-    private double horasTrabalhadas;
+    private boolean aptoPericulosidade;
+    private int grauInsalubridade;
+    private boolean valeTransporte;
+    private boolean valeAlimentacao;
+    private double valorVT;
+    private double valorVA;
+
+    public double getSalarioBase(){
+        return salarioBase;
+    }
 }
