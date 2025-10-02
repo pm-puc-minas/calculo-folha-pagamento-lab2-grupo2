@@ -1,4 +1,6 @@
-package com.rh.folhaPagamento.model;
+package com.rh.folhaPagamento.service.calculation;
+
+import com.rh.folhaPagamento.model.Funcionario;
 
 public class CalculoInsalubridade implements Adicional {
 

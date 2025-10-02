@@ -1,6 +1,8 @@
-package com.rh.folhaPagamento.model;
+package com.rh.folhaPagamento.service.calculation;
 
-public class CalculoINSS implements Descontos{
+import com.rh.folhaPagamento.model.Funcionario;
+
+public class CalculoINSS implements Descontos {
 
     private double aliquota;
     private double salario;

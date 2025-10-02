@@ -1,6 +1,8 @@
-package com.rh.folhaPagamento.model;
+package com.rh.folhaPagamento.service.calculation;
 
-public class CalculoVA implements Beneficio{
+import com.rh.folhaPagamento.model.Funcionario;
+
+public class CalculoVA implements Beneficio {
 
     private int dias;
     private double vale;

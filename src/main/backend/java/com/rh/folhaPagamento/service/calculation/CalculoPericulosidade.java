@@ -1,6 +1,8 @@
-package com.rh.folhaPagamento.model;
+package com.rh.folhaPagamento.service.calculation;
 
-public class CalculoPericulosidade implements Adicional{
+import com.rh.folhaPagamento.model.Funcionario;
+
+public class CalculoPericulosidade implements Adicional {
 
     @Override
     public double calcular(Funcionario funcionario) {
