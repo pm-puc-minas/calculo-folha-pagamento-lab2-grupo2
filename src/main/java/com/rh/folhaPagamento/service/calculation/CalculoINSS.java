@@ -6,6 +6,7 @@ public class CalculoINSS implements Descontos {
 
     private double aliquota;
     private double salario;
+    private double desconto;
 
     @Override
     public double calcular(Funcionario funcionario) {
@@ -14,24 +15,24 @@ public class CalculoINSS implements Descontos {
 
         if(salario <= 1518.00){
             aliquota = 0.075;
-
-            return (salario * aliquota);
+            desconto = salario * aliquota
+            funcionario.setSalarioBruto(salario - desconto);
 
         }
         else if(salario > 1518.00 && salario<= 2793.88){
             aliquota = 0.09;
-
-            return (salario * aliquota) - 23.37;
+            desconto = (salario * aliquota) - 23.37;
+            funcionario.setSalarioBruto(salario - desconto);
 
         } else if (salario > 2793.88 && salario <= 4190.83) {
             aliquota = 0.12;
-
-            return (salario * aliquota) - 98.37;
+            desconto = (salario * aliquota) - 98.37
+            funcionario.setSalarioBruto(salario - desconto);
 
         } else if (salario > 4190.83 && salario <=  8157.41) {
             aliquota = 0.14;
-
-            return (salario * aliquota) - 178.87;
+            desconto = (salario * aliquota) - 178.87;
+            funcionario.setSalarioBruto(salario - desconto);
             
         }
     }

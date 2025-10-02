@@ -5,9 +5,9 @@ import com.rh.folhaPagamento.model.Funcionario;
 public class CalculoPericulosidade implements Adicional {
 
     @Override
-    public double calcular(Funcionario funcionario) {
+    public void calcular(Funcionario funcionario) {
         double salarioBase = funcionario.getSalarioBase();
-
-        return salarioBase * 0.30;
+        double adicional = salarioBase*0.30 ;
+        funcionario.setSalarioBruto(salarioBase + adicional);
     }
 }

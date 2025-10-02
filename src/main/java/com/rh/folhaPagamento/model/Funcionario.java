@@ -13,7 +13,8 @@ public class Funcionario {
     private String cargo;
     private Usuario usuario;
     private int dependentes;
-    private double salario;
+    private double salarioBruto;
+    private double salarioLiquido;
     private double salarioBase;
     private boolean aptoPericulosidade;
     private int grauInsalubridade;
@@ -22,6 +23,7 @@ public class Funcionario {
     private double valorVT;
     private double valorVA;
     private int diasTrabalhados;
+    private double valorINSS;
 
 
 

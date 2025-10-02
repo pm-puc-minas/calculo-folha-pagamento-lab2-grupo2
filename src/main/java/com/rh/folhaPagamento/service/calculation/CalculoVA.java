@@ -10,9 +10,11 @@ public class CalculoVA implements Beneficio {
     @Override
     public double calcular(Funcionario funcionario) {
 
+        double salario = funcionario.getSalarioBase();
         dias = funcionario.getDiasTrabalhados();
         vale = funcionario.getValorVA() / 30;
+        double beneficio = dias * vale ;
 
-        return dias * vale;
+        funcionario.setSalarioBruto(salario + beneficio);
     }
 }
