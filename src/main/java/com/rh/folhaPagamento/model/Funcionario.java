@@ -1,5 +1,11 @@
 package com.rh.folhaPagamento.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+
 public class Funcionario {
     private long id;
     private String nome;
@@ -17,20 +23,6 @@ public class Funcionario {
     private double valorVA;
     private int diasTrabalhados;
 
-    public double getSalarioBase(){
-        return salarioBase;
-    }
-    public int getGrauInsalubridade(){
-        return grauInsalubridade;
-    }
-    public double getValeAlimentacao(){
-        return valorVA;
-    }
-    public double getValeTransporte(){
-        return valorVT;
-    }
-    public double getDiasTrabalhados(){
-        return diasTrabalhados;
-    }
+
 
 }
