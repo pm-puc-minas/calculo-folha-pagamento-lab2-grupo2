@@ -11,7 +11,7 @@ public class CalculoVA implements Beneficio {
     public double calcular(Funcionario funcionario) {
 
         dias = funcionario.getDiasTrabalhados();
-        vale = funcionario.getValeAlimentacao() / 30;
+        vale = funcionario.getValorVA() / 30;
 
         return dias * vale;
     }
