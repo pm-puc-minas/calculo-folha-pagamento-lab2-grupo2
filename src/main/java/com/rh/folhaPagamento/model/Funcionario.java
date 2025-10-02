@@ -15,8 +15,22 @@ public class Funcionario {
     private boolean valeAlimentacao;
     private double valorVT;
     private double valorVA;
+    private int diasTrabalhados;
 
     public double getSalarioBase(){
         return salarioBase;
     }
+    public int getGrauInsalubridade(){
+        return grauInsalubridade;
+    }
+    public double getValeAlimentacao(){
+        return valorVA;
+    }
+    public double getValeTransporte(){
+        return valorVT;
+    }
+    public double getDiasTrabalhados(){
+        return diasTrabalhados;
+    }
+
 }

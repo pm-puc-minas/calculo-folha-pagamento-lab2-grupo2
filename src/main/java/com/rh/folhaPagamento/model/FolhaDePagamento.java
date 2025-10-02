@@ -11,8 +11,4 @@ public class FolhaDePagamento {
     private int mesReferencia;
     private int anoReferencia;
     private long id;
-
-
-    teste;
-
 }
