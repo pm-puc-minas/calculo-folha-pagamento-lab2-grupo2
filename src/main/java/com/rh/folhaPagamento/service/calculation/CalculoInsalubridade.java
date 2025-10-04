@@ -10,7 +10,9 @@ public class CalculoInsalubridade implements Adicional {
     public double calcular(Funcionario funcionario) {
 
         double grauInsalubridade = funcionario.getGrauInsalubridade();
+        double adicional = salarioMinimo * (grauInsalubridade/100);
+        double salario = funcionario.getSalarioBase();
 
-        return salarioMinimo * (grauInsalubridade/100);
+        funcionario.setSalarioBruto(salario + adicional);
     }
 }

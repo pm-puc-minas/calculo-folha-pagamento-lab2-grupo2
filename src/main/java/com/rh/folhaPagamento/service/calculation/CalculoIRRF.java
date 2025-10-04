@@ -4,8 +4,10 @@ import com.rh.folhaPagamento.model.Funcionario;
 
 public class CalculoIRRF implements Descontos {
 
+    private double baseCalculo;
     @Override
     public double calcular(Funcionario funcionario) {
-    return 0;
+
+        baseCalculo = funcionario.getSalarioBruto();
     }
 }
