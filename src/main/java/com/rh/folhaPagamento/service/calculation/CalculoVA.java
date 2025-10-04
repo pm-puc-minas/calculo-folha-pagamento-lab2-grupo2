@@ -9,10 +9,13 @@ public class CalculoVA implements Beneficio {
 
     @Override
     public double calcular(Funcionario funcionario) {
-
+/*
         dias = funcionario.getDiasTrabalhados();
         vale = funcionario.getValorVA() / 30;
 
         return dias * vale;
+
+ */
+        return 0;
     }
 }

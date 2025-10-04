@@ -1,0 +1,39 @@
+create table funcionario(
+    id int primary key auto_increment,
+    nome varchar(70) not null,
+    cpf varchar(11) not null,
+    cargo varchar(70) not null,
+    salarioBase double not null,
+    dependentes int not null,
+    aptoPericulosidade boolean not null,
+    grauInsalubridade int not null,
+    valeTransporte boolean not null,
+    valorVT double not null,
+    valeAlimentacao boolean not null,
+    valorVA double not null,
+    id_usuario int not null unique,
+    FOREIGN KEY (id_usuario) references usuario(id)
+);
+
+create table usuario(
+    id int primary key auto_increment,
+    login varchar(70) not null,
+    senha varchar(70) not null,
+    permissao int not null
+);
+
+CREATE TABLE folha_pagamento (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    mes_referencia INT NOT NULL,
+    ano_referencia INT NOT NULL,
+    salario_bruto double NOT NULL,
+    total_adicionais double NOT NULL,
+    total_beneficios double NOT NULL,
+    total_descontos double NOT NULL,
+    salario_liquido double NOT NULL,
+    funcionario_id int NOT NULL,
+    FOREIGN KEY (funcionario_id) REFERENCES funcionario(id)
+);
+
+
+

@@ -34,5 +34,6 @@ public class CalculoINSS implements Descontos {
             return (salario * aliquota) - 178.87;
             
         }
+        return 0;
     }
 }
