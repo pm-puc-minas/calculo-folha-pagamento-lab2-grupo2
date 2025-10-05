@@ -1,13 +1,21 @@
 package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-public class CalculoVT implements Descontos {
+public class CalculoVT implements IDescontos {
 
     @Override
-    public double calcular(Funcionario funcionario) {
-        double salario = funcionario.getSalarioBase();
-        double desconto = salario * 0.06;
-        funcionario.setSalarioBruto(salario - desconto);
+    public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
+        BigDecimal valorDiarioVT = funcionario.getValorVT();
+        BigDecimal salarioBase = funcionario.getSalarioBase();
+
+        BigDecimal valorTotalBeneficio = valorDiarioVT.multiply(new BigDecimal(diasUteis));
+        BigDecimal limiteDesconto = salarioBase.multiply(new BigDecimal("0.06"));
+
+        BigDecimal desconto = limiteDesconto.min(valorTotalBeneficio);
+
+        return desconto.setScale(2, RoundingMode.HALF_UP);
     }
 }

@@ -1,40 +1,40 @@
 package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-public class CalculoINSS implements Descontos {
-
-    private double aliquota;
-    private double salario;
-    private double desconto;
+public class CalculoINSS implements IDescontos {
 
     @Override
-    public double calcular(Funcionario funcionario) {
+    public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
+        BigDecimal salarioBase = funcionario.getSalarioBase();
+        BigDecimal desconto;
 
-        salario = funcionario.getSalarioBase();
+        BigDecimal faixa1 = new BigDecimal("1302.00");
+        BigDecimal faixa2 = new BigDecimal("2571.29");
+        BigDecimal faixa3 = new BigDecimal("3856.94");
+        BigDecimal faixa4 = new BigDecimal("7507.49");
 
-        if(salario <= 1518.00){
-            aliquota = 0.075;
-            desconto = salario * aliquota
-            funcionario.setSalarioBruto(salario - desconto);
-
+        if (salarioBase.compareTo(faixa1) <= 0) {
+            BigDecimal aliquota = new BigDecimal("0.075");
+            desconto = salarioBase.multiply(aliquota);
+        } else if (salarioBase.compareTo(faixa2) <= 0) {
+            BigDecimal aliquota = new BigDecimal("0.09");
+            BigDecimal parcelaADeduzir = new BigDecimal("19.53");
+            desconto = salarioBase.multiply(aliquota).subtract(parcelaADeduzir);
+        } else if (salarioBase.compareTo(faixa3) <= 0) {
+            BigDecimal aliquota = new BigDecimal("0.12");
+            BigDecimal parcelaADeduzir = new BigDecimal("96.67");
+            desconto = salarioBase.multiply(aliquota).subtract(parcelaADeduzir);
+        } else if (salarioBase.compareTo(faixa4) <= 0) {
+            BigDecimal aliquota = new BigDecimal("0.14");
+            BigDecimal parcelaADeduzir = new BigDecimal("173.81");
+            desconto = salarioBase.multiply(aliquota).subtract(parcelaADeduzir);
+        } else {
+            desconto = new BigDecimal("877.24");
         }
-        else if(salario > 1518.00 && salario<= 2793.88){
-            aliquota = 0.09;
-            desconto = (salario * aliquota) - 23.37;
-            funcionario.setSalarioBruto(salario - desconto);
 
-        } else if (salario > 2793.88 && salario <= 4190.83) {
-            aliquota = 0.12;
-            desconto = (salario * aliquota) - 98.37
-            funcionario.setSalarioBruto(salario - desconto);
-
-        } else if (salario > 4190.83 && salario <=  8157.41) {
-            aliquota = 0.14;
-            desconto = (salario * aliquota) - 178.87;
-            funcionario.setSalarioBruto(salario - desconto);
-            
-        }
-        return 0;
+        return desconto.setScale(2, RoundingMode.HALF_UP);
     }
 }

@@ -2,12 +2,18 @@ package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
 
-public class CalculoPericulosidade implements Adicional {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class CalculoPericulosidade implements IAdicional {
 
     @Override
-    public void calcular(Funcionario funcionario) {
-        double salarioBase = funcionario.getSalarioBase();
-        double adicional = salarioBase*0.30 ;
-        funcionario.setSalarioBruto(salarioBase + adicional);
+    public BigDecimal calcular(Funcionario funcionario) {
+        BigDecimal salarioBase = funcionario.getSalarioBase();
+        BigDecimal percentual = new BigDecimal("0.30");
+
+        BigDecimal adicional = salarioBase.multiply(percentual);
+
+        return adicional.setScale(2, RoundingMode.HALF_UP);
     }
 }

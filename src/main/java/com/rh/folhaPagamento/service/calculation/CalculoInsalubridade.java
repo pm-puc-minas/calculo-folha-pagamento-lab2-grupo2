@@ -1,18 +1,35 @@
 package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-public class CalculoInsalubridade implements Adicional {
+public class CalculoInsalubridade implements IAdicional {
 
-    private double salarioMinimo =  1518.00;
+    private final BigDecimal salarioMinimo = new BigDecimal("1518.00");
 
     @Override
-    public double calcular(Funcionario funcionario) {
+    public BigDecimal calcular(Funcionario funcionario) {
+        int grau = funcionario.getGrauInsalubridade();
+        BigDecimal percentual;
 
-        double grauInsalubridade = funcionario.getGrauInsalubridade();
-        double adicional = salarioMinimo * (grauInsalubridade/100);
-        double salario = funcionario.getSalarioBase();
+        switch (grau) {
+            case 1:
+                percentual = new BigDecimal("0.10");
+                break;
+            case 2:
+                percentual = new BigDecimal("0.20");
+                break;
+            case 3:
+                percentual = new BigDecimal("0.40");
+                break;
+            default:
+                percentual = BigDecimal.ZERO;
+                break;
+        }
 
-        funcionario.setSalarioBruto(salario + adicional);
+        BigDecimal adicional = salarioMinimo.multiply(percentual);
+
+        return adicional.setScale(2, RoundingMode.HALF_UP);
     }
 }

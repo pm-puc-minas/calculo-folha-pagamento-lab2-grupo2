@@ -25,7 +25,8 @@ public class Funcionario {
     private int dependentes;
 
     @Column(name = "salario_base", nullable = false)
-    private double salarioBase;
+    private BigDecimal salarioBase;
+
     @Column(name = "apto_periculosidade", nullable = false)
     private boolean aptoPericulosidade;
     private int grauInsalubridade;
@@ -33,10 +34,10 @@ public class Funcionario {
     private boolean valeAlimentacao;
 
     @Column(name = "valor_vt")
-    private double valorVT;
+    private BigDecimal valorVT;
 
     @Column(name = "valor_va")
-    private double valorVA;
+    private BigDecimal valorVA;
 
     @OneToOne
     @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = false, unique = true)

@@ -2,19 +2,17 @@ package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
 
-public class CalculoVA implements Beneficio {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-    private int dias;
-    private double vale;
+public class CalculoVA implements IBeneficio {
 
     @Override
-    public double calcular(Funcionario funcionario) {
+    public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
+        BigDecimal valorDiarioVA = funcionario.getValorVA();
 
-        double salario = funcionario.getSalarioBase();
-        dias = funcionario.getDiasTrabalhados();
-        vale = funcionario.getValorVA() / 30;
-        double beneficio = dias * vale ;
+        BigDecimal beneficioTotal = valorDiarioVA.multiply(new BigDecimal(diasUteis));
 
-        funcionario.setSalarioBruto(salario + beneficio);
+        return beneficioTotal.setScale(2, RoundingMode.HALF_UP);
     }
 }
