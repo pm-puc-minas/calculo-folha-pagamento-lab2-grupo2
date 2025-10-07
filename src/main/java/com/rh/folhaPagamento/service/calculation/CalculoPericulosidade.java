@@ -9,11 +9,16 @@ public class CalculoPericulosidade implements IAdicional {
 
     @Override
     public BigDecimal calcular(Funcionario funcionario) {
-        BigDecimal salarioBase = funcionario.getSalarioBase();
-        BigDecimal percentual = new BigDecimal("0.30");
+        if(funcionario.isAptoPericulosidade()) {
+            BigDecimal salarioBase = funcionario.getSalarioBase();
+            BigDecimal percentual = new BigDecimal("0.30");
 
-        BigDecimal adicional = salarioBase.multiply(percentual);
+            BigDecimal adicional = salarioBase.multiply(percentual);
 
-        return adicional.setScale(2, RoundingMode.HALF_UP);
+            return adicional.setScale(2, RoundingMode.HALF_UP);
+        }
+        else {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
     }
 }
