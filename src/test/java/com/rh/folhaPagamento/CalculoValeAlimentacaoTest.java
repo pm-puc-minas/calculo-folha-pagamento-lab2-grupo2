@@ -1,7 +1,7 @@
 package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
-import com.rh.folhaPagamento.service.calculation.CalculoVA;
+import com.rh.folhaPagamento.service.calculation.CalculoValeAlimentacao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +14,10 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Nome da classe ajustado para a convenção "Test"
-class CalculoVATest {
+class CalculoValeAlimentacaoTest {
 
     // Passo 3: Adicionar uma instância do Logger
-    private static final Logger logger = LoggerFactory.getLogger(CalculoVATest.class);
+    private static final Logger logger = LoggerFactory.getLogger(CalculoValeAlimentacaoTest.class);
 
     private CalculoVA calculoVA;
 
