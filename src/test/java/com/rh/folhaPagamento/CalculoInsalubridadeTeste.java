@@ -1,12 +1,13 @@
-package com.rh.folhaPagamento.service.calculation;
+package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import com.rh.folhaPagamento.service.calculation.CalculoInsalubridade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CalculoInsalubridadeTest {
+class CalculoInsalubridadeTeste {
 
     private CalculoInsalubridade calculoInsalubridade;
     private final BigDecimal salarioMinimo = new BigDecimal("1518.00");
