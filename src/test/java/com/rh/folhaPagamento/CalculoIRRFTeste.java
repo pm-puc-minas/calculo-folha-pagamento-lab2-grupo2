@@ -1,6 +1,7 @@
-package com.rh.folhaPagamento.service.calculation;
+package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import com.rh.folhaPagamento.service.calculation.CalculoIRRF;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
@@ -10,22 +11,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CalculoIRRFTeste {
 
     private CalculoIRRF calculoIRRF;
-    private Funcionario funcionario;
+    private int dependentes = 2;
 
     @BeforeEach
     void setUp() {
         calculoIRRF = new CalculoIRRF();
-        funcionario = new Funcionario();
     }
 
     @Test
     void deveEstarIsentoParaSalarioBaseNaFaixa1() {
 
-        BigDecimal salarioBase = new BigDecimal("2200.00");
+        BigDecimal salarioBruto = new BigDecimal("2200.00");
         BigDecimal valorINSS = new BigDecimal("165.00");
-        funcionario.setSalarioBase(salarioBase);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, valorINSS);
+        BigDecimal resultado = calculoIRRF.calcular(salarioBruto, valorINSS, dependentes);
 
         assertEquals(BigDecimal.ZERO.setScale(2), resultado);
     }
@@ -33,12 +32,11 @@ class CalculoIRRFTeste {
     @Test
     void deveCalcularIRRFCorretamenteParaFaixa2() {
 
-        BigDecimal salarioBase = new BigDecimal("2500.00");
+        BigDecimal salarioBruto = new BigDecimal("2500.00");
         BigDecimal valorINSS = new BigDecimal("187.50");
 
-        funcionario.setSalarioBase(salarioBase);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, valorINSS);
+        BigDecimal resultado = calculoIRRF.calcular(salarioBruto, valorINSS, dependentes);
 
         BigDecimal baseCalculo = new BigDecimal("2312.50");
         BigDecimal aliquota = new BigDecimal("0.075");
@@ -50,12 +48,11 @@ class CalculoIRRFTeste {
     @Test
     void deveCalcularIRRFCorretamenteParaFaixa3() {
 
-        BigDecimal salarioBase = new BigDecimal("3500.00");
+        BigDecimal salarioBruto = new BigDecimal("3500.00");
         BigDecimal valorINSS = new BigDecimal("262.50");
 
-        funcionario.setSalarioBase(salarioBase);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, valorINSS);
+        BigDecimal resultado = calculoIRRF.calcular(salarioBruto, valorINSS, dependentes);
 
         BigDecimal baseCalculo = new BigDecimal("3237.50");
         BigDecimal aliquota = new BigDecimal("0.15");
@@ -67,12 +64,11 @@ class CalculoIRRFTeste {
     @Test
     void deveCalcularIRRFCorretamenteParaFaixa4() {
 
-        BigDecimal salarioBase = new BigDecimal("4500.00");
+        BigDecimal salarioBruto = new BigDecimal("4500.00");
         BigDecimal valorINSS = new BigDecimal("337.50");
 
-        funcionario.setSalarioBase(salarioBase);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, valorINSS);
+        BigDecimal resultado = calculoIRRF.calcular(salarioBruto, valorINSS, dependentes);
 
         BigDecimal baseCalculo = new BigDecimal("4162.50");
         BigDecimal aliquota = new BigDecimal("0.225");
@@ -84,12 +80,11 @@ class CalculoIRRFTeste {
     @Test
     void deveCalcularIRRFCorretamenteParaFaixa5() {
 
-        BigDecimal salarioBase = new BigDecimal("6000.00");
-        BigDecimal valorINSS = new BigDecimal("450.00"); // Exemplo de valor de INSS
+        BigDecimal salarioBruto = new BigDecimal("6000.00");
+        BigDecimal valorINSS = new BigDecimal("450.00");
 
-        funcionario.setSalarioBase(salarioBase);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, valorINSS);
+        BigDecimal resultado = calculoIRRF.calcular(salarioBruto, valorINSS, dependentes);
 
         BigDecimal baseCalculo = new BigDecimal("5550.00");
         BigDecimal aliquota = new BigDecimal("0.275");
@@ -101,12 +96,11 @@ class CalculoIRRFTeste {
     @Test
     void deveRetornarZeroSeCalculoForNegativo() {
 
-        BigDecimal salarioBase = new BigDecimal("2000.00");
-        BigDecimal valorINSS = new BigDecimal("250.00"); // Valor de INSS que torna a base negativa para essa faixa
+        BigDecimal salarioBruto = new BigDecimal("2000.00");
+        BigDecimal valorINSS = new BigDecimal("250.00");
 
-        funcionario.setSalarioBase(salarioBase);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, valorINSS);
+        BigDecimal resultado = calculoIRRF.calcular(salarioBruto, valorINSS, dependentes);
 
         assertEquals(BigDecimal.ZERO.setScale(2), resultado);
     }

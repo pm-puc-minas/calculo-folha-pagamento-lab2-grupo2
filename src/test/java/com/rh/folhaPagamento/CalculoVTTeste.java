@@ -1,6 +1,7 @@
-package com.rh.folhaPagamento.service.calculation;
+package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import com.rh.folhaPagamento.service.calculation.CalculoVT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
