@@ -6,10 +6,14 @@
 ---
 
 ## 👥 Integrantes:  
-Bárbara Marcella
+Bárbara Marcella 
+
 Caio Kfuri 
+
 Enzo Dayrell
+
 Gabriel Maximo
+
 Rafael Lopes
 
 ---
