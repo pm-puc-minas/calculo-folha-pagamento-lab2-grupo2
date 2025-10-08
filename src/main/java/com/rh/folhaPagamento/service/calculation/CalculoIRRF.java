@@ -8,14 +8,12 @@ public class CalculoIRRF implements IDescontos {
 
     @Override
     public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
-
         BigDecimal salarioBruto = funcionario.getSalarioBruto();
         BigDecimal descontoINSS = new BigDecimal("0");
         int numeroDependentes = funcionario.getDependentes();
 
         return calcularIRRF(salarioBruto, descontoINSS, numeroDependentes);
     }
-
     public BigDecimal calcularIRRF(BigDecimal salarioBruto, BigDecimal descontoINSS, int numeroDependentes) {
 
         BigDecimal deducaoPorDependente = new BigDecimal("189.59");

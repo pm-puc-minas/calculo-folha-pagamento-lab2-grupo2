@@ -26,7 +26,12 @@ public class Funcionario {
 
     @Column(name = "salario_base", nullable = false)
     private BigDecimal salarioBase;
+
+    @Column(name = "salario_bruto", nullable = false)
     private BigDecimal salarioBruto;
+
+    @Column(name = "desconto-INSS", nullable = false)
+    private BigDecimal descontoINSS;
 
     @Column(name = "apto_periculosidade", nullable = false)
     private boolean aptoPericulosidade;

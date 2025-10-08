@@ -49,16 +49,17 @@ public class folhaPagamentoService {
 
         salarioBruto = salarioBase.add(totalAdicionais);
 
-
+        funcionario.setSalarioBruto(salarioBruto);
 
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
         totalDescontos = totalDescontos.add(descontoINSS);
 
+        funcionario.setDescontoINSS(totalDescontos);
+
 
         BigDecimal descontoIRRF = calculoIRRF.calcular(
-                salarioBruto,
-                descontoINSS,
-                funcionario.getDependentes()
+                funcionario,
+                diasUteis
         );
         totalDescontos = totalDescontos.add(descontoIRRF);
 
