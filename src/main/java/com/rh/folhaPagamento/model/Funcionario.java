@@ -26,6 +26,7 @@ public class Funcionario {
 
     @Column(name = "salario_base", nullable = false)
     private BigDecimal salarioBase;
+    private BigDecimal salarioBruto;
 
     @Column(name = "apto_periculosidade", nullable = false)
     private boolean aptoPericulosidade;

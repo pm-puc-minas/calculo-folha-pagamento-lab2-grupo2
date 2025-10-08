@@ -4,9 +4,19 @@ import com.rh.folhaPagamento.model.Funcionario;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class CalculoIRRF {
+public class CalculoIRRF implements IDescontos {
 
-    public BigDecimal calcular(BigDecimal salarioBruto, BigDecimal descontoINSS, int numeroDependentes) {
+    @Override
+    public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
+
+        BigDecimal salarioBruto = funcionario.getSalarioBruto();
+        BigDecimal descontoINSS = new BigDecimal("0");
+        int numeroDependentes = funcionario.getDependentes();
+
+        return calcularIRRF(salarioBruto, descontoINSS, numeroDependentes);
+    }
+
+    public BigDecimal calcularIRRF(BigDecimal salarioBruto, BigDecimal descontoINSS, int numeroDependentes) {
 
         BigDecimal deducaoPorDependente = new BigDecimal("189.59");
         BigDecimal totalDeducaoDependentes = deducaoPorDependente.multiply(new BigDecimal(numeroDependentes));
