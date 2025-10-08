@@ -1,1 +1,13 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=20316528&assignment_repo_type=AssignmentRepo)
+* Sistema de Gestão de RH
+Trabalho final da disciplina Programação Modular - PUC
+Minas Professor: Paulo Henrique D. S. Coelho
+
+* Integrantes:
+ 
+
+* Sobre o projeto
+O Sistema de Gestão de Recursos Humanos (RH) é uma solução abrangente desenvolvida para automatizar e otimizar os processos-chave do departamento de pessoal de uma empresa.
+o projeto foca em fornecer uma ferramenta robusta com funcionalidades essenciais, como:
+Folha de Pagamento: Automação completa do cálculo salarial, gerenciando de forma precisa descontos, benefícios e proventos (incluindo horas extras e adicionais).
+O objetivo principal é elevar a eficiência e a conformidade legal nas rotinas de RH.
+
