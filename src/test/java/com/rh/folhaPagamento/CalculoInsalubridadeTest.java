@@ -1,8 +1,8 @@
-
 package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.CalculoInsalubridade;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,17 +10,22 @@ import java.math.RoundingMode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Classe de Testes Unitários para validar a lógica do Adicional de Insalubridade,
- * que é calculado com base no Salário Mínimo e o grau de exposição (10%, 20% ou 40%).
+ * Testes Unitários para validar a lógica do Adicional de Insalubridade.
  */
 public class CalculoInsalubridadeTest {
 
-    private final CalculoInsalubridade calculoInsalubridade = new CalculoInsalubridade();
-    private final BigDecimal SALARIO_MINIMO_USADO = new BigDecimal("1518.00"); // Constante usada na classe de cálculo
+    private CalculoInsalubridade calculoInsalubridade;
+    // O valor deve refletir o que está hardcoded/constante na classe CalculoInsalubridade
+    private final BigDecimal SALARIO_MINIMO = new BigDecimal("1518.00");
+
+    @BeforeEach
+    void setUp() {
+
+        calculoInsalubridade = new CalculoInsalubridade();
+    }
 
     private Funcionario criarFuncionarioComGrau(int grau) {
         Funcionario f = new Funcionario();
-
         f.setGrauInsalubridade(grau);
         return f;
     }
@@ -29,42 +34,56 @@ public class CalculoInsalubridadeTest {
     @Test
     void deveCalcularGrauMinimoDe10PorCento() {
         // Grau 1 (10% do salário mínimo)
-
-
         Funcionario f = criarFuncionarioComGrau(1);
 
-        BigDecimal valorEsperado = new BigDecimal("151.80");
+        BigDecimal resultado = calculoInsalubridade.calcular(f);
 
-        BigDecimal adicionalCalculado = calculoInsalubridade.calcular(f);
-
-        assertEquals(valorEsperado.setScale(2, RoundingMode.HALF_UP), adicionalCalculado);
+        // O valor esperado é calculado DENTRO do teste (melhor prática)
+        BigDecimal esperado = SALARIO_MINIMO.multiply(new BigDecimal("0.10"));
+        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
     }
 
     @Test
     void deveCalcularGrauMedioDe20PorCento() {
         // Grau 2 (20% do salário mínimo)
-
-
         Funcionario f = criarFuncionarioComGrau(2);
 
-        BigDecimal valorEsperado = new BigDecimal("303.60");
+        BigDecimal resultado = calculoInsalubridade.calcular(f);
 
-        BigDecimal adicionalCalculado = calculoInsalubridade.calcular(f);
-
-        assertEquals(valorEsperado.setScale(2, RoundingMode.HALF_UP), adicionalCalculado);
+        BigDecimal esperado = SALARIO_MINIMO.multiply(new BigDecimal("0.20"));
+        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
     }
 
     @Test
     void deveCalcularGrauMaximoDe40PorCento() {
         // Grau 3 (40% do salário mínimo)
-
-
         Funcionario f = criarFuncionarioComGrau(3);
 
-        BigDecimal valorEsperado = new BigDecimal("607.20");
+        BigDecimal resultado = calculoInsalubridade.calcular(f);
 
-        BigDecimal adicionalCalculado = calculoInsalubridade.calcular(f);
+        BigDecimal esperado = SALARIO_MINIMO.multiply(new BigDecimal("0.40"));
+        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+    }
 
-        assertEquals(valorEsperado.setScale(2, RoundingMode.HALF_UP), adicionalCalculado);
+    @Test
+    void deveCalcularZeroParaGrauInvalido() {
+        // Casos de borda: Grau que não está na lista (Ex: 99)
+        Funcionario f = criarFuncionarioComGrau(99);
+
+        BigDecimal resultado = calculoInsalubridade.calcular(f);
+
+        BigDecimal esperado = BigDecimal.ZERO;
+        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+    }
+
+    @Test
+    void deveCalcularZeroParaGrauZero() {
+        // Casos de borda: Sem exposição (Grau 0)
+        Funcionario f = criarFuncionarioComGrau(0);
+
+        BigDecimal resultado = calculoInsalubridade.calcular(f);
+
+        BigDecimal esperado = BigDecimal.ZERO;
+        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
     }
 }
