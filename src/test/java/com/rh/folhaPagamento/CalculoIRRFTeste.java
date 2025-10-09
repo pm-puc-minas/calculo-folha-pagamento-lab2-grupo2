@@ -22,10 +22,11 @@ class CalculoIRRFTeste {
 
     @Test
     void deveEstarIsentoParaSalarioBaseNaFaixa1() {
-
         Funcionario funcionario = new Funcionario();
         funcionario.setSalarioBruto(new BigDecimal("2200.00"));
         funcionario.setDependentes(dependentes);
+        // INSS é 0 para o cálculo, então não precisa ser subtraído
+        funcionario.setDescontoINSS(new BigDecimal("0.00"));
 
         BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
 
@@ -38,13 +39,13 @@ class CalculoIRRFTeste {
         funcionario.setSalarioBruto(new BigDecimal("2500.00"));
         funcionario.setDependentes(dependentes);
 
-        BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
+        funcionario.setDescontoINSS(new BigDecimal("187.50"));
 
-        BigDecimal valorINSS = new BigDecimal("187.50");
+        BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
 
         BigDecimal baseCalculo = funcionario.getSalarioBruto()
                 .subtract(new BigDecimal("189.59").multiply(new BigDecimal(dependentes)))
-                .subtract(valorINSS);
+                .subtract(funcionario.getDescontoINSS());
 
         BigDecimal aliquota = new BigDecimal("0.075");
         BigDecimal parcelaADeduzir = new BigDecimal("142.80");
@@ -58,13 +59,13 @@ class CalculoIRRFTeste {
         Funcionario funcionario = new Funcionario();
         funcionario.setSalarioBruto(new BigDecimal("3500.00"));
         funcionario.setDependentes(dependentes);
+        funcionario.setDescontoINSS(new BigDecimal("262.50"));
 
         BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
 
-        BigDecimal valorINSS = new BigDecimal("262.50");
         BigDecimal baseCalculo = funcionario.getSalarioBruto()
                 .subtract(new BigDecimal("189.59").multiply(new BigDecimal(dependentes)))
-                .subtract(valorINSS);
+                .subtract(funcionario.getDescontoINSS());
 
         BigDecimal aliquota = new BigDecimal("0.15");
         BigDecimal parcelaADeduzir = new BigDecimal("354.80");
@@ -78,13 +79,13 @@ class CalculoIRRFTeste {
         Funcionario funcionario = new Funcionario();
         funcionario.setSalarioBruto(new BigDecimal("4500.00"));
         funcionario.setDependentes(dependentes);
+        funcionario.setDescontoINSS(new BigDecimal("337.50"));
 
         BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
 
-        BigDecimal valorINSS = new BigDecimal("337.50");
         BigDecimal baseCalculo = funcionario.getSalarioBruto()
                 .subtract(new BigDecimal("189.59").multiply(new BigDecimal(dependentes)))
-                .subtract(valorINSS);
+                .subtract(funcionario.getDescontoINSS());
 
         BigDecimal aliquota = new BigDecimal("0.225");
         BigDecimal parcelaADeduzir = new BigDecimal("636.13");
@@ -98,13 +99,13 @@ class CalculoIRRFTeste {
         Funcionario funcionario = new Funcionario();
         funcionario.setSalarioBruto(new BigDecimal("6000.00"));
         funcionario.setDependentes(dependentes);
+        funcionario.setDescontoINSS(new BigDecimal("450.00"));
 
         BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
 
-        BigDecimal valorINSS = new BigDecimal("450.00");
         BigDecimal baseCalculo = funcionario.getSalarioBruto()
                 .subtract(new BigDecimal("189.59").multiply(new BigDecimal(dependentes)))
-                .subtract(valorINSS);
+                .subtract(funcionario.getDescontoINSS());
 
         BigDecimal aliquota = new BigDecimal("0.275");
         BigDecimal parcelaADeduzir = new BigDecimal("869.36");
@@ -118,6 +119,8 @@ class CalculoIRRFTeste {
         Funcionario funcionario = new Funcionario();
         funcionario.setSalarioBruto(new BigDecimal("2000.00"));
         funcionario.setDependentes(dependentes);
+
+        funcionario.setDescontoINSS(new BigDecimal("500.00"));
 
         BigDecimal resultado = calculoIRRF.calcular(funcionario, diasUteis);
 
