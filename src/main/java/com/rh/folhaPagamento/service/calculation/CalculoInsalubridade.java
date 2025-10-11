@@ -1,9 +1,11 @@
 package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+@Service
 public class CalculoInsalubridade implements IAdicional {
 
     private final BigDecimal salarioMinimo = new BigDecimal("1518.00");

@@ -1,7 +1,6 @@
 package com.rh.folhaPagamento.service.calculation;
 
 import com.rh.folhaPagamento.model.Funcionario;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
