@@ -1,26 +1,31 @@
+// TEST
 package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.CalculoInsalubridade;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Testes Unitários para validar a lógica do Adicional de Insalubridade.
+/** * Testes Unitários para validar a lógica do Adicional de Insalubridade
+ * utilizando um logger profissional (SLF4J + Logback).
  */
+@DisplayName("Testes do Cálculo de Adicional de Insalubridade")
 public class CalculoInsalubridadeTest {
 
+    // 1. Crie uma instância estática e final do Logger para a classe
+    private static final Logger logger = LoggerFactory.getLogger(CalculoInsalubridadeTest.class);
+
     private CalculoInsalubridade calculoInsalubridade;
-    // O valor deve refletir o que está hardcoded/constante na classe CalculoInsalubridade
-    private final BigDecimal SALARIO_MINIMO = new BigDecimal("1518.00");
 
     @BeforeEach
     void setUp() {
-
         calculoInsalubridade = new CalculoInsalubridade();
     }
 
@@ -30,60 +35,73 @@ public class CalculoInsalubridadeTest {
         return f;
     }
 
-
     @Test
-    void deveCalcularGrauMinimoDe10PorCento() {
-        // Grau 1 (10% do salário mínimo)
+    @DisplayName("Deve calcular 10% para o grau mínimo")
+    void deveCalcularGrauMinimoDe10PorCento(TestInfo testInfo) { // 2. Parâmetro TestInfo injetado
+        logger.info("INICIANDO TESTE: {}", testInfo.getDisplayName()); // 3. Log de início do teste
+
         Funcionario f = criarFuncionarioComGrau(1);
-
         BigDecimal resultado = calculoInsalubridade.calcular(f);
+        BigDecimal esperado = new BigDecimal("151.80");
 
-        // O valor esperado é calculado DENTRO do teste (melhor prática)
-        BigDecimal esperado = SALARIO_MINIMO.multiply(new BigDecimal("0.10"));
-        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+        assertEquals(esperado, resultado);
+
+        logger.info("TESTE CONCLUÍDO COM SUCESSO: {}", testInfo.getDisplayName()); // 4. Log de sucesso
     }
 
     @Test
-    void deveCalcularGrauMedioDe20PorCento() {
-        // Grau 2 (20% do salário mínimo)
+    @DisplayName("Deve calcular 20% para o grau médio")
+    void deveCalcularGrauMedioDe20PorCento(TestInfo testInfo) {
+        logger.info("INICIANDO TESTE: {}", testInfo.getDisplayName());
+
         Funcionario f = criarFuncionarioComGrau(2);
-
         BigDecimal resultado = calculoInsalubridade.calcular(f);
+        BigDecimal esperado = new BigDecimal("303.60");
 
-        BigDecimal esperado = SALARIO_MINIMO.multiply(new BigDecimal("0.20"));
-        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+        assertEquals(esperado, resultado);
+
+        logger.info("TESTE CONCLUÍDO COM SUCESSO: {}", testInfo.getDisplayName());
     }
 
     @Test
-    void deveCalcularGrauMaximoDe40PorCento() {
-        // Grau 3 (40% do salário mínimo)
+    @DisplayName("Deve calcular 40% para o grau máximo")
+    void deveCalcularGrauMaximoDe40PorCento(TestInfo testInfo) {
+        logger.info("INICIANDO TESTE: {}", testInfo.getDisplayName());
+
         Funcionario f = criarFuncionarioComGrau(3);
-
         BigDecimal resultado = calculoInsalubridade.calcular(f);
+        BigDecimal esperado = new BigDecimal("607.20");
 
-        BigDecimal esperado = SALARIO_MINIMO.multiply(new BigDecimal("0.40"));
-        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+        assertEquals(esperado, resultado);
+
+        logger.info("TESTE CONCLUÍDO COM SUCESSO: {}", testInfo.getDisplayName());
     }
 
     @Test
-    void deveCalcularZeroParaGrauInvalido() {
-        // Casos de borda: Grau que não está na lista (Ex: 99)
+    @DisplayName("Deve retornar zero para um grau inválido")
+    void deveCalcularZeroParaGrauInvalido(TestInfo testInfo) {
+        logger.info("INICIANDO TESTE: {}", testInfo.getDisplayName());
+
         Funcionario f = criarFuncionarioComGrau(99);
-
         BigDecimal resultado = calculoInsalubridade.calcular(f);
+        BigDecimal esperado = new BigDecimal("0.00");
 
-        BigDecimal esperado = BigDecimal.ZERO;
-        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+        assertEquals(esperado, resultado);
+
+        logger.info("TESTE CONCLUÍDO COM SUCESSO: {}", testInfo.getDisplayName());
     }
 
     @Test
-    void deveCalcularZeroParaGrauZero() {
-        // Casos de borda: Sem exposição (Grau 0)
+    @DisplayName("Deve retornar zero para o grau zero")
+    void deveCalcularZeroParaGrauZero(TestInfo testInfo) {
+        logger.info("INICIANDO TESTE: {}", testInfo.getDisplayName());
+
         Funcionario f = criarFuncionarioComGrau(0);
-
         BigDecimal resultado = calculoInsalubridade.calcular(f);
+        BigDecimal esperado = new BigDecimal("0.00");
 
-        BigDecimal esperado = BigDecimal.ZERO;
-        assertEquals(esperado.setScale(2, RoundingMode.HALF_UP), resultado);
+        assertEquals(esperado, resultado);
+
+        logger.info("TESTE CONCLUÍDO COM SUCESSO: {}", testInfo.getDisplayName());
     }
 }
