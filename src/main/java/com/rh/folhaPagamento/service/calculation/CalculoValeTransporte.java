@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 @Service
-public class CalculoVT implements IDescontos {
+public class CalculoValeTransporte implements IDescontos {
 
     @Override
     public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
