@@ -19,11 +19,11 @@ class CalculoValeAlimentacaoTest {
     // Passo 3: Adicionar uma instância do Logger
     private static final Logger logger = LoggerFactory.getLogger(CalculoValeAlimentacaoTest.class);
 
-    private CalculoVA calculoVA;
+    private CalculoValeAlimentacao calculoVA;
 
     @BeforeEach
     void setUp() {
-        calculoVA = new CalculoVA();
+        calculoVA = new CalculoValeAlimentacao();
     }
 
     @Test

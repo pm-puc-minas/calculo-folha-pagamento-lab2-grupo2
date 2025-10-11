@@ -1,7 +1,7 @@
-package com.rh.folhaPagamento.service;
-
+package com.rh.folhaPagamento;
 import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
+import com.rh.folhaPagamento.service.folhaPagamentoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +26,8 @@ class FolhaPagamentoServiceTest {
     // Mocks para simular os resultados das classes de cálculo
     @Mock private CalculoInsalubridade calculoInsalubridade;
     @Mock private CalculoPericulosidade calculoPericulosidade;
-    @Mock private CalculoVA calculoVA;
-    @Mock private CalculoVT calculoVT;
+    @Mock private CalculoValeAlimentacao calculoVA;
+    @Mock private CalculoValeTransporte calculoVT;
     @Mock private CalculoINSS calculoINSS;
     @Mock private CalculoIRRF calculoIRRF;
 

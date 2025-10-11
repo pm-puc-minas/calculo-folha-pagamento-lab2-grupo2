@@ -12,8 +12,8 @@ public class folhaPagamentoService {
     // DECLARAÇÃO:
     private final CalculoInsalubridade calculoInsalubridade;
     private final CalculoPericulosidade calculoPericulosidade;
-    private final CalculoVA calculoVA;
-    private final CalculoVT calculoVT;
+    private final CalculoValeAlimentacao calculoVA;
+    private final CalculoValeTransporte calculoVT;
     private final CalculoINSS calculoINSS;
     private final CalculoIRRF calculoIRRF;
 
@@ -21,8 +21,8 @@ public class folhaPagamentoService {
     public folhaPagamentoService(
             CalculoInsalubridade calculoInsalubridade,
             CalculoPericulosidade calculoPericulosidade,
-            CalculoVA calculoVA,
-            CalculoVT calculoVT,
+            CalculoValeAlimentacao calculoVA,
+            CalculoValeTransporte calculoVT,
             CalculoINSS calculoINSS,
             CalculoIRRF calculoIRRF) {
         this.calculoInsalubridade = calculoInsalubridade;
