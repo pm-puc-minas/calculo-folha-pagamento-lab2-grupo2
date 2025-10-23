@@ -1,0 +1,49 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-folha
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: folha
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./src/main/frontend
+      dockerfile: Dockerfile
+    container_name: frontend-folha
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-folha
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/folha?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+      SPRING_JPA_SHOW_SQL: true
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:

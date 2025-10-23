@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
+import { api } from '../services/api';
 
 function LoginPage() {
     const [formData, setFormData] = useState({
@@ -19,26 +20,21 @@ function LoginPage() {
         event.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    login: formData.email,
-                    senha: formData.password
-                }),
+            const response = await api.post('/api/auth/login', {
+                login: formData.email,
+                senha: formData.password
             });
 
-            if (response.ok) {
+            if (response.status === 200) {
                 alert('Logado');
-            } else {
-                const errorText = await response.text();
-                alert(`Erro no login: ${errorText}`);
             }
         } catch (error) {
-            console.error('Erro de rede ou de conexão:', error);
-            alert('Não foi possível conectar ao servidor. Verifique se a API está a correr.');
+            if (error.response) {
+                alert(`Erro no login: ${error.response.data}`);
+            } else {
+                console.error('Erro de rede ou de conexão:', error);
+                alert('Não foi possível conectar ao servidor. Verifique se a API está sendo executada.');
+            }
         }
     };
 
