@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
 import { api } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -26,7 +28,11 @@ function LoginPage() {
             });
 
             if (response.status === 200) {
-                alert('Logado');
+                localStorage.setItem('auth', 'true');
+                if (response.data) {
+                    localStorage.setItem('user', JSON.stringify(response.data));
+                }
+                navigate('/', { replace: true });
             }
         } catch (error) {
             if (error.response) {

@@ -17,16 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  frontend:
-    build:
-      context: ./src/main/frontend
-      dockerfile: Dockerfile
-    container_name: frontend-folha
-    depends_on:
-      - backend
-    ports:
-      - "3000:80"
-
   backend:
     build:
       context: .
@@ -44,6 +34,18 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+
+  frontend:
+    build:
+      context: ./src/main/frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: frontend-folha
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   db-data:
