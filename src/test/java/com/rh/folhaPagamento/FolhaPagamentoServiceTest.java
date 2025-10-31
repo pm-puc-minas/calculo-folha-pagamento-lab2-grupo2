@@ -2,6 +2,7 @@ package com.rh.folhaPagamento;
 import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
 import com.rh.folhaPagamento.service.folhaPagamentoService;
+import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +65,8 @@ class FolhaPagamentoServiceTest {
 
         BigDecimal resultadoEsperado = new BigDecimal("2600.00").setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal resultadoAtual = service.calcularFolha(funcionario, DIAS_UTEIS);
+        DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS);
+        BigDecimal resultadoAtual = r.totalAPagar;
 
         assertEquals(resultadoEsperado, resultadoAtual, "O cálculo total no cenário base falhou.");
     }
@@ -97,7 +99,8 @@ class FolhaPagamentoServiceTest {
 
         BigDecimal resultadoEsperado = new BigDecimal("3410.00").setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal resultadoAtual = service.calcularFolha(funcionario, DIAS_UTEIS);
+        DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS);
+        BigDecimal resultadoAtual = r.totalAPagar;
 
         assertEquals(resultadoEsperado, resultadoAtual, "O cálculo com adicionais e benefícios falhou.");
     }

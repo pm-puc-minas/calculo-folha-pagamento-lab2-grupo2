@@ -14,13 +14,13 @@ public class FuncionarioRequestDTO {
     private String cargo;
     private int dependentes;
     private BigDecimal salarioBase;
-    private boolean aptoPericulosidade;
+    private Boolean aptoPericulosidade;
     private int grauInsalubridade;
-    private boolean valeTransporte;
-    private boolean valeAlimentacao;
+    private Boolean valeTransporte;
+    private Boolean valeAlimentacao;
     private BigDecimal valorVT;
     private BigDecimal valorVA;
-
+    private Integer diasUteis;
 
     private String login;
     private String senha;

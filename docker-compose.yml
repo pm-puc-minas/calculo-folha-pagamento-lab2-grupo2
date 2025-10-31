@@ -9,6 +9,7 @@ services:
       MYSQL_PASSWORD: pass
     volumes:
       - db-data:/var/lib/mysql
+      - ./BD/scriptBD:/docker-entrypoint-initdb.d/01-init.sql:ro
     ports:
       - "3307:3306"
     healthcheck:

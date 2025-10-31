@@ -29,6 +29,7 @@ function LoginPage() {
 
             if (response.status === 200) {
                 localStorage.setItem('auth', 'true');
+                localStorage.setItem('login', formData.email);
                 if (response.data) {
                     localStorage.setItem('user', JSON.stringify(response.data));
                 }
