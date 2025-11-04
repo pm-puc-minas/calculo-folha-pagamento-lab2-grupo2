@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FuncionarioService {
@@ -67,7 +70,32 @@ public class FuncionarioService {
         return salvo;
     }
 
-    public java.util.Optional<Funcionario> buscarPorLogin(String login){
+    public Optional<Funcionario> buscarPorLogin(String login){
         return funcionarioRepository.findByUsuario_Login(login);
+    }
+
+    //Retorna a lista completa de todos os funcionários.
+
+    public List<Funcionario> listarTodos() {
+        return funcionarioRepository.findAll();
+    }
+
+
+    //Utiliza Java Streams para filtrar funcionários por uma substring no cargo.
+
+    public List<Funcionario> filtrarPorCargo(String cargo) {
+
+        List<Funcionario> todosFuncionarios = funcionarioRepository.findAll();
+
+        // Verifica se o termo de busca é nulo ou vazio
+        if (cargo == null || cargo.trim().isEmpty()) {
+            return todosFuncionarios;
+        }
+
+        final String termoBusca = cargo.trim().toLowerCase();
+
+        return todosFuncionarios.stream()
+                .filter(f -> f.getCargo() != null && f.getCargo().toLowerCase().contains(termoBusca))
+                .collect(Collectors.toList());
     }
 }
