@@ -3,13 +3,14 @@ package com.rh.folhaPagamento.service;
 import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.stream.Stream;
 
 @Service
 public class folhaPagamentoService {
 
-    // DECLARAÇÃO:
     private final CalculoInsalubridade calculoInsalubridade;
     private final CalculoPericulosidade calculoPericulosidade;
     private final CalculoValeAlimentacao calculoVA;
@@ -17,7 +18,6 @@ public class folhaPagamentoService {
     private final CalculoINSS calculoINSS;
     private final CalculoIRRF calculoIRRF;
 
-    // CONSTRUTOR: Injeção de todas as dependências
     public folhaPagamentoService(
             CalculoInsalubridade calculoInsalubridade,
             CalculoPericulosidade calculoPericulosidade,
@@ -45,39 +45,40 @@ public class folhaPagamentoService {
         public BigDecimal descontoIRRF;
     }
 
-    public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis){
-        BigDecimal totalAdicionais = BigDecimal.ZERO;
-        BigDecimal totalDescontos = BigDecimal.ZERO;
-        BigDecimal totalBeneficios = BigDecimal.ZERO;
+    public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis) {
         BigDecimal salarioBase = funcionario.getSalarioBase();
-        BigDecimal salarioBruto = salarioBase;
 
-        if (funcionario.isAptoPericulosidade()) {
-            totalAdicionais = totalAdicionais.add(calculoPericulosidade.calcular(funcionario));
-        }
-        if (funcionario.getGrauInsalubridade() > 0) {
-            totalAdicionais = totalAdicionais.add(calculoInsalubridade.calcular(funcionario));
-        }
-        salarioBruto = salarioBase.add(totalAdicionais);
+        //ADICIONAIS (usando Stream para somar se aplicável)
+        BigDecimal totalAdicionais = Stream.of(
+                funcionario.isAptoPericulosidade() ? calculoPericulosidade.calcular(funcionario) : BigDecimal.ZERO,
+                funcionario.getGrauInsalubridade() > 0 ? calculoInsalubridade.calcular(funcionario) : BigDecimal.ZERO
+        ).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal salarioBruto = salarioBase.add(totalAdicionais);
         funcionario.setSalarioBruto(salarioBruto);
 
+        //DESCONTOS (usando Stream)
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
-        totalDescontos = totalDescontos.add(descontoINSS);
+        BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
+
+        BigDecimal totalDescontos = Stream.of(
+                descontoINSS,
+                descontoIRRF,
+                funcionario.isValeTransporte() ? calculoVT.calcular(funcionario, diasUteis) : BigDecimal.ZERO
+        ).reduce(BigDecimal.ZERO, BigDecimal::add);
+
         funcionario.setDescontoINSS(descontoINSS);
 
-        BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
-        totalDescontos = totalDescontos.add(descontoIRRF);
+        //BENEFÍCIOS (usando Stream)
+        BigDecimal totalBeneficios = Stream.of(
+                funcionario.isValeAlimentacao() ? calculoVA.calcular(funcionario, diasUteis) : BigDecimal.ZERO
+        ).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (funcionario.isValeTransporte()) {
-            totalDescontos = totalDescontos.add(calculoVT.calcular(funcionario, diasUteis));
-        }
-        if (funcionario.isValeAlimentacao()) {
-            totalBeneficios = totalBeneficios.add(calculoVA.calcular(funcionario, diasUteis));
-        }
-
+        //CÁLCULOS FINAIS
         BigDecimal salarioLiquido = salarioBruto.subtract(totalDescontos);
         BigDecimal totalAPagar = salarioLiquido.add(totalBeneficios);
 
+        //CRIAÇÃO DO OBJETO DE RETORNO
         DetalheCalculo r = new DetalheCalculo();
         r.salarioBase = salarioBase.setScale(2, RoundingMode.HALF_UP);
         r.salarioBruto = salarioBruto.setScale(2, RoundingMode.HALF_UP);
@@ -88,6 +89,7 @@ public class folhaPagamentoService {
         r.totalAPagar = totalAPagar.setScale(2, RoundingMode.HALF_UP);
         r.descontoINSS = descontoINSS.setScale(2, RoundingMode.HALF_UP);
         r.descontoIRRF = descontoIRRF.setScale(2, RoundingMode.HALF_UP);
+
         return r;
     }
 }
