@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Service
 public class FuncionarioService {
@@ -32,29 +32,40 @@ public class FuncionarioService {
 
     @Transactional
     public Funcionario criarFuncionario(FuncionarioRequestDTO dto) {
+        if (dto.getSalarioBase() == null) {
+            throw new IllegalArgumentException("salarioBase obrigatório");
+        }
+
         Usuario novoUsuario = new Usuario();
         novoUsuario.setLogin(dto.getLogin());
         novoUsuario.setSenha(dto.getSenha());
         novoUsuario.setPermissao(dto.getPermissao());
         Usuario usuarioS = usuarioRepository.save(novoUsuario);
+        usuarioRepository.flush();
 
         Funcionario f = new Funcionario();
         f.setNome(dto.getNome());
-        f.setCpf(dto.getCpf());
+        String cpfDigits = dto.getCpf() != null ? dto.getCpf().replaceAll("\\D", "") : null;
+        f.setCpf(cpfDigits);
         f.setCargo(dto.getCargo());
         f.setDependentes(dto.getDependentes());
         f.setSalarioBase(dto.getSalarioBase());
         f.setAptoPericulosidade(Boolean.TRUE.equals(dto.getAptoPericulosidade()));
         f.setGrauInsalubridade(dto.getGrauInsalubridade());
-        f.setValeTransporte(Boolean.TRUE.equals(dto.getValeTransporte()));
-        f.setValorVT(dto.getValorVT());
-        f.setValeAlimentacao(Boolean.TRUE.equals(dto.getValeAlimentacao()));
-        f.setValorVA(dto.getValorVA());
+
+        boolean vt = Boolean.TRUE.equals(dto.getValeTransporte());
+        boolean va = Boolean.TRUE.equals(dto.getValeAlimentacao());
+        f.setValeTransporte(vt);
+        f.setValeAlimentacao(va);
+        f.setValorVT(vt ? (dto.getValorVT() != null ? dto.getValorVT() : BigDecimal.ZERO) : BigDecimal.ZERO);
+        f.setValorVA(va ? (dto.getValorVA() != null ? dto.getValorVA() : BigDecimal.ZERO) : BigDecimal.ZERO);
+
         f.setUsuario(usuarioS);
 
         int diasUteis = dto.getDiasUteis() != null ? dto.getDiasUteis() : 22;
         DetalheCalculo det = folhaService.calcularFolha(f, diasUteis);
         Funcionario salvo = funcionarioRepository.save(f);
+        funcionarioRepository.flush();
 
         java.time.LocalDate hoje = java.time.LocalDate.now();
         FolhaDePagamento fol = new FolhaDePagamento();
@@ -67,6 +78,7 @@ public class FuncionarioService {
         fol.setTotalDescontos(det.totalDescontos);
         fol.setSalarioLiquido(det.salarioLiquido);
         folhaPagamentoRepository.save(fol);
+        folhaPagamentoRepository.flush();
         return salvo;
     }
 

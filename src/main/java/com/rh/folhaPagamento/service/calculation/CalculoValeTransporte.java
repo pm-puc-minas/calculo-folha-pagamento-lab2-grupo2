@@ -10,8 +10,8 @@ public class CalculoValeTransporte implements IDescontos {
 
     @Override
     public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
-        BigDecimal valorDiarioVT = funcionario.getValorVT();
-        BigDecimal salarioBase = funcionario.getSalarioBase();
+        BigDecimal valorDiarioVT = funcionario.getValorVT() != null ? funcionario.getValorVT() : BigDecimal.ZERO;
+        BigDecimal salarioBase = funcionario.getSalarioBase() != null ? funcionario.getSalarioBase() : BigDecimal.ZERO;
 
         BigDecimal valorTotalBeneficio = valorDiarioVT.multiply(new BigDecimal(diasUteis));
         BigDecimal limiteDesconto = salarioBase.multiply(new BigDecimal("0.06"));

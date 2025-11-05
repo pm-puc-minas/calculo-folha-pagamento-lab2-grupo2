@@ -59,6 +59,7 @@ public class folhaPagamentoService {
 
         //DESCONTOS (usando Stream)
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
+        funcionario.setDescontoINSS(descontoINSS);
         BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
 
         BigDecimal totalDescontos = Stream.of(

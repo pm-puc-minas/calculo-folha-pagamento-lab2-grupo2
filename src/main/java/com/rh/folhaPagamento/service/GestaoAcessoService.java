@@ -15,15 +15,18 @@ public class GestaoAcessoService {
     }
 
     public void auth(String Login, String Senha){
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(Login);
+        authenticate(Login, Senha);
+    }
 
+    public Usuario authenticate(String Login, String Senha){
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(Login);
         if(usuarioOpt.isEmpty()){
             throw new RuntimeException("Usuário não encontrado");
         }
         Usuario usuario = usuarioOpt.get();
-
         if(!Senha.equals(usuario.getSenha())){
             throw new RuntimeException("Senha incorreta");
         }
+        return usuario;
     }
 }

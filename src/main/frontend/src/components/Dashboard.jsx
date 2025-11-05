@@ -44,6 +44,11 @@ export default function Dashboard() {
   const [folhas, setFolhas] = useState([]);
   const [irrf, setIrrf] = useState(0);
 
+  const userInfo = useMemo(()=>{ try{ return JSON.parse(localStorage.getItem('user')||'null') }catch{ return null } },[]);
+  const papel = userInfo?.permissao === 2 ? 'administrador' : (userInfo?.permissao === 1 ? 'gestor' : 'funcionário');
+  const saudacao = useMemo(()=>{ const h=new Date().getHours(); return h<12?'Bom dia':(h<18?'Boa tarde':'Boa noite') },[]);
+  const nomeExibicao = funcionario?.nome || userInfo?.login || 'Usuário';
+
   useEffect(() => {
     async function load() {
       if(!login){
@@ -82,6 +87,10 @@ export default function Dashboard() {
       <Sidebar user={user} />
       <main className="content">
         <div className="content-wrap">
+          <div className="welcome-banner">
+            <h2 className="welcome-title">{saudacao}, {nomeExibicao}!</h2>
+            <div className="welcome-subtitle">Bem-vindo ao PayPaper. Você está acessando como {papel}.</div>
+          </div>
           <header className="content-header">
             <h1>Visão Geral</h1>
             <div className="header-actions">

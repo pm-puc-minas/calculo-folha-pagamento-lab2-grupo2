@@ -38,3 +38,4 @@ CREATE TABLE IF NOT EXISTS folha_pagamento (
   funcionario_id INT NOT NULL,
   FOREIGN KEY (funcionario_id) REFERENCES funcionario(id)
 );
+INSERT IGNORE INTO usuario (login, senha, permissao) VALUES ('admin', 'admin', 2);

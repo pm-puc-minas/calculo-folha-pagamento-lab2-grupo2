@@ -10,7 +10,7 @@ public class CalculoValeAlimentacao implements IBeneficio {
 
     @Override
     public BigDecimal calcular(Funcionario funcionario, int diasUteis) {
-        BigDecimal valorDiarioVA = funcionario.getValorVA();
+        BigDecimal valorDiarioVA = funcionario.getValorVA() != null ? funcionario.getValorVA() : BigDecimal.ZERO;
 
         BigDecimal beneficioTotal = valorDiarioVA.multiply(new BigDecimal(diasUteis));
 

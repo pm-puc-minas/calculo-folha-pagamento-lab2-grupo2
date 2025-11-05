@@ -4,49 +4,40 @@ import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const navigate = useNavigate();
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         try {
             const response = await api.post('/api/auth/login', {
                 login: formData.email,
                 senha: formData.password
             });
-
             if (response.status === 200) {
                 localStorage.setItem('auth', 'true');
                 localStorage.setItem('login', formData.email);
                 if (response.data) {
                     localStorage.setItem('user', JSON.stringify(response.data));
+                    const perm = Number(response.data.permissao)
+                    if (perm === 2) { navigate('/admin', { replace: true }); return; }
                 }
                 navigate('/', { replace: true });
             }
         } catch (error) {
-            if (error.response) {
-                alert(`Erro no login: ${error.response.data}`);
-            } else {
-                console.error('Erro de rede ou de conexão:', error);
-                alert('Não foi possível conectar ao servidor. Verifique se a API está sendo executada.');
-            }
+            if (error.response) alert(`Erro no login: ${error.response.data}`);
+            else { console.error(error); alert('Não foi possível conectar ao servidor.'); }
         }
     };
 
     return (
         <div className="login-page">
+            <div className="lines" />
             <div className="login-container">
                 <h1>Login</h1>
                 <p className="subtitle">Bem vindo(a) de volta! 👋</p>
@@ -86,7 +77,9 @@ function LoginPage() {
                         <a href="#" className="forgot-password">Esqueceu sua senha?</a>
                     </div>
 
-                    <button type="submit" className="login-button">Entrar</button>
+                    <div className="actions-row">
+                      <button type="submit" className="login-button">Entrar</button>
+                    </div>
                 </form>
 
                 <p className="signup-link">
