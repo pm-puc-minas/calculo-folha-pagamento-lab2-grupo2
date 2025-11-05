@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.stream.Stream;
-
+import java.util.ArrayList;
+import java.util.List;
 @Service
 public class folhaPagamentoService {
 
@@ -48,38 +48,55 @@ public class folhaPagamentoService {
     public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis) {
         BigDecimal salarioBase = funcionario.getSalarioBase();
 
-        //ADICIONAIS (usando Stream para somar se aplicável)
-        BigDecimal totalAdicionais = Stream.of(
-                funcionario.isAptoPericulosidade() ? calculoPericulosidade.calcular(funcionario) : BigDecimal.ZERO,
-                funcionario.getGrauInsalubridade() > 0 ? calculoInsalubridade.calcular(funcionario) : BigDecimal.ZERO
-        ).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // === ADICIONAIS ===
+        List<BigDecimal> adicionais = new ArrayList<>();
+
+        if (funcionario.isAptoPericulosidade()) {
+            adicionais.add(calculoPericulosidade.calcular(funcionario));
+        }
+        if (funcionario.getGrauInsalubridade() > 0) {
+            adicionais.add(calculoInsalubridade.calcular(funcionario));
+        }
+
+        // Soma usando Stream
+        BigDecimal totalAdicionais = adicionais.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal salarioBruto = salarioBase.add(totalAdicionais);
         funcionario.setSalarioBruto(salarioBruto);
 
-        //DESCONTOS (usando Stream)
+        // === DESCONTOS ===
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
-        funcionario.setDescontoINSS(descontoINSS);
         BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
 
-        BigDecimal totalDescontos = Stream.of(
-                descontoINSS,
-                descontoIRRF,
-                funcionario.isValeTransporte() ? calculoVT.calcular(funcionario, diasUteis) : BigDecimal.ZERO
-        ).reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<BigDecimal> descontos = new ArrayList<>();
+        descontos.add(descontoINSS);
+        descontos.add(descontoIRRF);
+
+        if (funcionario.isValeTransporte()) {
+            descontos.add(calculoVT.calcular(funcionario, diasUteis));
+        }
+
+        BigDecimal totalDescontos = descontos.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         funcionario.setDescontoINSS(descontoINSS);
 
-        //BENEFÍCIOS (usando Stream)
-        BigDecimal totalBeneficios = Stream.of(
-                funcionario.isValeAlimentacao() ? calculoVA.calcular(funcionario, diasUteis) : BigDecimal.ZERO
-        ).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // === BENEFÍCIOS ===
+        List<BigDecimal> beneficios = new ArrayList<>();
 
-        //CÁLCULOS FINAIS
+        if (funcionario.isValeAlimentacao()) {
+            beneficios.add(calculoVA.calcular(funcionario, diasUteis));
+        }
+
+        BigDecimal totalBeneficios = beneficios.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // === CÁLCULOS FINAIS ===
         BigDecimal salarioLiquido = salarioBruto.subtract(totalDescontos);
         BigDecimal totalAPagar = salarioLiquido.add(totalBeneficios);
 
-        //CRIAÇÃO DO OBJETO DE RETORNO
+        // === CRIAÇÃO DO OBJETO DE RETORNO ===
         DetalheCalculo r = new DetalheCalculo();
         r.salarioBase = salarioBase.setScale(2, RoundingMode.HALF_UP);
         r.salarioBruto = salarioBruto.setScale(2, RoundingMode.HALF_UP);
@@ -93,4 +110,5 @@ public class folhaPagamentoService {
 
         return r;
     }
+
 }
