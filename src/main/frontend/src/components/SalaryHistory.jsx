@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import './Dashboard.css';
 import { Sidebar } from './Dashboard';
@@ -6,27 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 function formatBRL(v){
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v||0));
-}
-
-function LineChart({ data }){
-  const w = 560, h = 220, pad = 30;
-  const values = data.map(d=>Number(d.valor||0));
-  const max = Math.max(1, ...values);
-  const min = Math.min(0, ...values);
-  const scaleX = i => pad + (i * (w - 2*pad) / Math.max(1, data.length-1));
-  const scaleY = v => pad + (h - 2*pad) * (1 - (v - min) / Math.max(1, (max - min)));
-  const points = data.map((d,i)=>`${scaleX(i)},${scaleY(Number(d.valor))}`).join(' ');
-  return (
-    <svg width={w} height={h} style={{width:'100%', height:h}}>
-      <rect x="0" y="0" width={w} height={h} fill="#fff" rx="12" ry="12" stroke="var(--border)" />
-      <polyline fill="none" stroke="#2563eb" strokeWidth="3" points={points} />
-      {data.map((d,i)=> (
-        <g key={i}>
-          <circle cx={scaleX(i)} cy={scaleY(Number(d.valor))} r="4" fill="#2563eb" />
-        </g>
-      ))}
-    </svg>
-  );
 }
 
 export default function SalaryHistory(){
@@ -57,11 +36,6 @@ export default function SalaryHistory(){
     }
     load();
   },[login, navigate]);
-
-  const chartData = useMemo(()=> folhas.map(f=>({
-    label: `${String(f.mesReferencia).padStart(2,'0')}/${f.anoReferencia}`,
-    valor: f.salarioLiquido
-  })),[folhas]);
 
   const ultimo = folhas.length ? folhas[folhas.length-1] : null;
 
@@ -121,11 +95,7 @@ export default function SalaryHistory(){
             <section className="card">
               <div className="card-title">Gráfico</div>
               <div className="card-body">
-                {chartData.length > 1 ? (
-                  <LineChart data={chartData} />
-                ) : (
-                  <div className="muted">Sem dados suficientes para o gráfico</div>
-                )}
+                <div className="muted">Falta fazer</div>
               </div>
             </section>
 

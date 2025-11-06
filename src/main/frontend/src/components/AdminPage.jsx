@@ -157,38 +157,35 @@ export default function AdminPage(){
                   <label>Cargo<input placeholder="ex.: Analista Jr" value={novo.cargo} onChange={e=>setNovo({...novo, cargo:e.target.value})} /></label>
                   <label>Dependentes<input type="number" placeholder="0" value={novo.dependentes} onChange={e=>setNovo({...novo, dependentes:e.target.value})} /></label>
                   <label>Salário Base<input type="text" placeholder="R$ 0,00" value={novo.salarioBase} onChange={e=>setNovo({...novo, salarioBase: formatCurrencyBRL(e.target.value)})} /></label>
+                  <label>Periculosidade?<select value={novo.aptoPericulosidade?1:0} onChange={e=>setNovo({...novo, aptoPericulosidade:e.target.value==='1'})}>
+                    <option value={0}>Não</option>
+                    <option value={1}>Sim</option>
+                  </select></label>
                 </div>
+                <div className="form-grid" style={{marginTop:12}}>
+                  <label>Insalubridade?<select value={temInsalubridade?1:0} onChange={e=>{ const on = e.target.value==='1'; setTemInsalubridade(on); if(!on) setNovo({...novo, grauInsalubridade:''}) }}>
+                    <option value={0}>Não</option>
+                    <option value={1}>Sim</option>
+                  </select></label>
+                  {temInsalubridade ? (
+                    <label>Grau Insalubridade<input type="number" placeholder="0" value={novo.grauInsalubridade} onChange={e=>setNovo({...novo, grauInsalubridade:e.target.value})} /></label>
+                  ) : (<div />)}
 
-                <div className="grid-benefits">
-                  <div className="stack">
-                    <label>Periculosidade?<select value={novo.aptoPericulosidade?1:0} onChange={e=>setNovo({...novo, aptoPericulosidade:e.target.value==='1'})}>
-                      <option value={0}>Não</option>
-                      <option value={1}>Sim</option>
-                    </select></label>
-                    <label>Insalubridade?<select value={temInsalubridade?1:0} onChange={e=>{ const on = e.target.value==='1'; setTemInsalubridade(on); if(!on) setNovo({...novo, grauInsalubridade:''}) }}>
-                      <option value={0}>Não</option>
-                      <option value={1}>Sim</option>
-                    </select></label>
-                    <label>Vale Transporte?<select value={novo.valeTransporte?1:0} onChange={e=>{ const on = e.target.value==='1'; setNovo(prev=>({ ...prev, valeTransporte:on, valorVT: on ? prev.valorVT : '' })) }}>
-                      <option value={0}>Não</option>
-                      <option value={1}>Sim</option>
-                    </select></label>
-                    <label>Vale Alimentação?<select value={novo.valeAlimentacao?1:0} onChange={e=>{ const on = e.target.value==='1'; setNovo(prev=>({ ...prev, valeAlimentacao:on, valorVA: on ? prev.valorVA : '' })) }}>
-                      <option value={0}>Não</option>
-                      <option value={1}>Sim</option>
-                    </select></label>
-                  </div>
-                  <div className="stack">
-                    {temInsalubridade && (
-                      <label>Grau Insalubridade<input type="number" placeholder="0" value={novo.grauInsalubridade} onChange={e=>setNovo({...novo, grauInsalubridade:e.target.value})} /></label>
-                    )}
-                    {novo.valeTransporte && (
-                      <label>Valor VT/dia<input type="text" placeholder="R$ 0,00" value={novo.valorVT} onChange={e=>setNovo({...novo, valorVT: formatCurrencyBRL(e.target.value)})} /></label>
-                    )}
-                    {novo.valeAlimentacao && (
-                      <label>Valor VA/dia<input type="text" placeholder="R$ 0,00" value={novo.valorVA} onChange={e=>setNovo({...novo, valorVA: formatCurrencyBRL(e.target.value)})} /></label>
-                    )}
-                  </div>
+                  <label>Vale Transporte?<select value={novo.valeTransporte?1:0} onChange={e=>{ const on = e.target.value==='1'; setNovo(prev=>({ ...prev, valeTransporte:on, valorVT: on ? prev.valorVT : '' })) }}>
+                    <option value={0}>Não</option>
+                    <option value={1}>Sim</option>
+                  </select></label>
+                  {novo.valeTransporte ? (
+                    <label>Valor VT/dia<input type="text" placeholder="R$ 0,00" value={novo.valorVT} onChange={e=>setNovo({...novo, valorVT: formatCurrencyBRL(e.target.value)})} /></label>
+                  ) : (<div />)}
+
+                  <label>Vale Alimentação?<select value={novo.valeAlimentacao?1:0} onChange={e=>{ const on = e.target.value==='1'; setNovo(prev=>({ ...prev, valeAlimentacao:on, valorVA: on ? prev.valorVA : '' })) }}>
+                    <option value={0}>Não</option>
+                    <option value={1}>Sim</option>
+                  </select></label>
+                  {novo.valeAlimentacao ? (
+                    <label>Valor VA/dia<input type="text" placeholder="R$ 0,00" value={novo.valorVA} onChange={e=>setNovo({...novo, valorVA: formatCurrencyBRL(e.target.value)})} /></label>
+                  ) : (<div />)}
                 </div>
 
                 <div className="actions-row">
