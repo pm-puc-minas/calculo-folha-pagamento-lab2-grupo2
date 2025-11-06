@@ -27,7 +27,7 @@ class GestaoAcessoServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
-    private final String LOGIN_CORRETO = "admin.user";
+    private final String LOGIN_CORRETA = "admin.user";
     private final String SENHA_CORRETA = "senha123";
 
     private Usuario usuarioCorreto;
@@ -37,7 +37,7 @@ class GestaoAcessoServiceTest {
         
         usuarioCorreto = new Usuario();
         usuarioCorreto.setId(1);
-        usuarioCorreto.setLogin(LOGIN_CORRETO);
+    usuarioCorreto.setLogin(LOGIN_CORRETA);
         usuarioCorreto.setSenha(SENHA_CORRETA); 
     }
 
@@ -46,7 +46,7 @@ class GestaoAcessoServiceTest {
     @DisplayName("Teste 1: Deve autenticar com sucesso e retornar o Usuario")
     void authenticate_Sucesso() {
         
-        when(usuarioRepository.findByLogin(LOGIN_CORRETO)).thenReturn(Optional.of(usuarioCorreto));
+    when(usuarioRepository.findByLogin(LOGIN_CORRETA)).thenReturn(Optional.of(usuarioCorreto));
 
         
         Usuario resultado = gestaoAcessoService.authenticate(LOGIN_CORRETA, SENHA_CORRETA);
@@ -96,7 +96,7 @@ class GestaoAcessoServiceTest {
     @DisplayName("Teste 4: Deve executar auth com sucesso e não lançar exceção")
     void auth_Sucesso() {
         
-        when(usuarioRepository.findByLogin(LOGIN_CORRETO)).thenReturn(Optional.of(usuarioCorreto));
+    when(usuarioRepository.findByLogin(LOGIN_CORRETA)).thenReturn(Optional.of(usuarioCorreto));
 
         
         assertDoesNotThrow(() -> {

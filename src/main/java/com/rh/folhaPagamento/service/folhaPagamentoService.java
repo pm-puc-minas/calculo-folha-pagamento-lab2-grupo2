@@ -34,6 +34,9 @@ public class folhaPagamentoService {
     }
 
     public static class DetalheCalculo {
+        public DetalheCalculo() {
+            // construtor padrão
+        }
         public BigDecimal salarioBase;
         public BigDecimal salarioBruto;
         public BigDecimal totalAdicionais;
@@ -43,6 +46,16 @@ public class folhaPagamentoService {
         public BigDecimal totalAPagar;
         public BigDecimal descontoINSS;
         public BigDecimal descontoIRRF;
+        
+        // Construtor adicional para facilitar criação em testes
+        public DetalheCalculo(BigDecimal salarioBruto, BigDecimal totalAdicionais, BigDecimal totalBeneficios, BigDecimal totalDescontos, BigDecimal salarioLiquido) {
+            this.salarioBase = salarioBruto;
+            this.salarioBruto = salarioBruto;
+            this.totalAdicionais = totalAdicionais;
+            this.totalBeneficios = totalBeneficios;
+            this.totalDescontos = totalDescontos;
+            this.salarioLiquido = salarioLiquido;
+        }
     }
 
     public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis) {

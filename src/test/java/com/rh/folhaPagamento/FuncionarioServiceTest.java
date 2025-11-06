@@ -1,4 +1,4 @@
-package com.rh.folhaPagamento.service;
+package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.dto.FuncionarioRequestDTO;
 import com.rh.folhaPagamento.event.FuncionarioCriadoEvent;
@@ -9,6 +9,8 @@ import com.rh.folhaPagamento.repository.FolhaPagamentoRepository;
 import com.rh.folhaPagamento.repository.FuncionarioRepository;
 import com.rh.folhaPagamento.repository.UsuarioRepository;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
+import com.rh.folhaPagamento.service.FuncionarioService;
+import com.rh.folhaPagamento.service.folhaPagamentoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
