@@ -118,6 +118,9 @@ public class FuncionarioService {
         // 2. Atualiza o salário base
         funcionario.setSalarioBase(novoSalario);
 
+        // 2.1 Recalcula campos derivados (salarioBruto, descontoINSS)
+        folhaService.calcularFolha(funcionario, 22);
+
         // 3. Salva a alteração no banco de dados
         Funcionario salvo = funcionarioRepository.save(funcionario);
 

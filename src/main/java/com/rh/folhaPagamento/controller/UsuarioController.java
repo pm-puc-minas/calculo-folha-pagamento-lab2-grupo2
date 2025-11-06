@@ -9,8 +9,9 @@ import com.rh.folhaPagamento.repository.FuncionarioRepository;
 import com.rh.folhaPagamento.repository.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.rh.folhaPagamento.service.folhaPagamentoService;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,11 +24,13 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final FolhaPagamentoRepository folhaPagamentoRepository;
+    private final folhaPagamentoService folhaPagamentoService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository, FuncionarioRepository funcionarioRepository, FolhaPagamentoRepository folhaPagamentoRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository, FuncionarioRepository funcionarioRepository, FolhaPagamentoRepository folhaPagamentoRepository, folhaPagamentoService folhaPagamentoService) {
         this.usuarioRepository = usuarioRepository;
         this.funcionarioRepository = funcionarioRepository;
         this.folhaPagamentoRepository = folhaPagamentoRepository;
+        this.folhaPagamentoService = folhaPagamentoService;
     }
 
     @GetMapping
@@ -85,7 +88,23 @@ public class UsuarioController {
         if(body.containsKey("valeAlimentacao")) f.setValeAlimentacao(Boolean.parseBoolean(String.valueOf(body.get("valeAlimentacao"))));
         if(body.containsKey("valorVT")) f.setValorVT(new BigDecimal(String.valueOf(body.get("valorVT"))));
         if(body.containsKey("valorVA")) f.setValorVA(new BigDecimal(String.valueOf(body.get("valorVA"))));
+
+        int diasUteis = body.containsKey("diasUteis") ? Integer.parseInt(String.valueOf(body.get("diasUteis"))) : 22;
+        var det = folhaPagamentoService.calcularFolha(f, diasUteis);
+
         funcionarioRepository.save(f);
+
+        LocalDate hoje = LocalDate.now();
+        folhaPagamentoRepository.findByFuncionarioAndMesReferenciaAndAnoReferencia(f, hoje.getMonthValue(), hoje.getYear())
+                .ifPresent(fp -> {
+                    fp.setSalarioBruto(det.salarioBruto);
+                    fp.setTotalAdicionais(det.totalAdicionais);
+                    fp.setTotalBeneficios(det.totalBeneficios);
+                    fp.setTotalDescontos(det.totalDescontos);
+                    fp.setSalarioLiquido(det.salarioLiquido);
+                    folhaPagamentoRepository.save(fp);
+                });
+
         return ResponseEntity.ok(f);
     }
 

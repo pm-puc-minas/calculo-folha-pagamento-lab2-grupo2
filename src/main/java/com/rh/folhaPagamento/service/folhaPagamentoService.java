@@ -67,6 +67,7 @@ public class folhaPagamentoService {
 
         // === DESCONTOS ===
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
+        funcionario.setDescontoINSS(descontoINSS);
         BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
 
         List<BigDecimal> descontos = new ArrayList<>();
@@ -79,8 +80,6 @@ public class folhaPagamentoService {
 
         BigDecimal totalDescontos = descontos.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        funcionario.setDescontoINSS(descontoINSS);
 
         // === BENEFÍCIOS ===
         List<BigDecimal> beneficios = new ArrayList<>();
