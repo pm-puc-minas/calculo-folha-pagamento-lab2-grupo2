@@ -1,14 +1,18 @@
 package com.rh.folhaPagamento.service;
 
 import com.rh.folhaPagamento.dto.FuncionarioRequestDTO;
+// NOVO IMPORT: Para receber dados da requisição de ajuste salarial
+import com.rh.folhaPagamento.dto.AjusteSalarialRequestDTO;
 import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.model.Usuario;
 import com.rh.folhaPagamento.model.FolhaDePagamento;
 import com.rh.folhaPagamento.repository.FuncionarioRepository;
 import com.rh.folhaPagamento.repository.UsuarioRepository;
 import com.rh.folhaPagamento.repository.FolhaPagamentoRepository;
-import com.rh.folhaPagamento.event.FuncionarioCriadoEvent; // ADICIONADO: Import do Evento
-import org.springframework.context.ApplicationEventPublisher; // ADICIONADO: Import do Publicador
+import com.rh.folhaPagamento.event.FuncionarioCriadoEvent;
+// NOVO IMPORT: Importa o evento que acabamos de criar
+import com.rh.folhaPagamento.event.AjusteSalarialEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +21,7 @@ import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Map; // ADICIONADO: Import do Map
+import java.util.Map;
 import java.math.BigDecimal;
 
 @Service
@@ -34,7 +38,7 @@ public class FuncionarioService {
     @Autowired
     private folhaPagamentoService folhaService;
 
-    // ADICIONADO: Injeção do Publicador de Eventos (necessário para o requisito de Eventos)
+    // Injeção do Publicador de Eventos
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
@@ -79,10 +83,9 @@ public class FuncionarioService {
         Funcionario salvo = funcionarioRepository.save(f);
         funcionarioRepository.flush();
 
-        // IMPLEMENTAÇÃO DE EVENTOS: Disparo do Evento
+        // IMPLEMENTAÇÃO DE EVENTOS: Disparo do Evento de Criação
         FuncionarioCriadoEvent event = new FuncionarioCriadoEvent(this, salvo);
         eventPublisher.publishEvent(event);
-        // O LogFuncionarioListener ouvirá este evento e registrará o log.
 
         // --- 4. Criação da Folha de Pagamento ---
         java.time.LocalDate hoje = java.time.LocalDate.now();
@@ -101,6 +104,31 @@ public class FuncionarioService {
         return salvo;
     }
 
+    // =========================================================================
+    // NOVO MÉTODO: Lógica de Ajuste Salarial com Disparo de Evento
+    // =========================================================================
+    @Transactional
+    public Funcionario atualizarSalario(Integer id, BigDecimal novoSalario) {
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado com o ID: " + id));
+
+        // 1. Guarda o salário antigo antes de mudar
+        BigDecimal salarioAntigo = funcionario.getSalarioBase();
+
+        // 2. Atualiza o salário base
+        funcionario.setSalarioBase(novoSalario);
+
+        // 3. Salva a alteração no banco de dados
+        Funcionario salvo = funcionarioRepository.save(funcionario);
+
+        // 4. DISPARA O NOVO EVENTO DE AJUSTE SALARIAL
+        AjusteSalarialEvent event = new AjusteSalarialEvent(this, salvo, salarioAntigo, novoSalario);
+        eventPublisher.publishEvent(event);
+
+        return salvo;
+    }
+    // =========================================================================
+
     public Optional<Funcionario> buscarPorLogin(String login){
         return funcionarioRepository.findByUsuario_Login(login);
     }
@@ -113,7 +141,6 @@ public class FuncionarioService {
     // IMPLEMENTAÇÃO DE COLEÇÕES (Map): Requisito Sprint 3
     /**
      * Retorna todos os funcionários como um Map onde a chave é o ID (Integer).
-     * Corrigido para usar Integer.
      */
     public Map<Integer, Funcionario> getFuncionariosMap() {
         List<Funcionario> todosFuncionarios = funcionarioRepository.findAll();
@@ -123,7 +150,7 @@ public class FuncionarioService {
                 .collect(Collectors.toMap(
                         Funcionario::getId,   // Chave: ID (Integer)
                         funcionario -> funcionario) // Valor: Objeto Funcionario
-                ); // <--- PARÊNTESE E PONTO E VÍRGULA CORRIGIDOS
+                );
     }
 
 
