@@ -38,8 +38,9 @@ public class FolhaDePagamentoController {
 
     @PostMapping("/calcular")
     public Map<String, Object> calcular(@RequestBody DadosCalculoFolha dados) {
-        
-        // LocalDate hoje = LocalDate.now();
+
+        // <-- CORRIGIDO: Descomentada a declaração de 'hoje'
+        LocalDate hoje = LocalDate.now();
         DetalheCalculo r = folhaPagamentoService.calcularFolha(
                 dados.getFuncionario(),
                 dados.getDiasUteis(),
@@ -47,7 +48,8 @@ public class FolhaDePagamentoController {
                 hoje.getYear()
         );
 
-        // Map<String, Object> resultado = new java.util.HashMap<>();
+        // <-- CORRIGIDO: Descomentada a declaração de 'resultado'
+        Map<String, Object> resultado = new java.util.HashMap<>();
         resultado.put("salarioBase", r.salarioBase);
         resultado.put("salarioBruto", r.salarioBruto);
         resultado.put("totalAdicionais", r.totalAdicionais);
@@ -58,7 +60,8 @@ public class FolhaDePagamentoController {
         resultado.put("descontoINSS", r.descontoINSS);
         resultado.put("descontoIRRF", r.descontoIRRF);
 
-        // resultado.put("insalubridade", r.insalubridade);
+        // <-- CORRIGIDO: Descomentado (isto veio da branch 'main' na mesclagem)
+        resultado.put("insalubridade", r.insalubridade);
         resultado.put("periculosidade", r.periculosidade);
         resultado.put("valeAlimentacao", r.valeAlimentacao);
         resultado.put("valeTransporte", r.valeTransporte);
@@ -91,7 +94,8 @@ public class FolhaDePagamentoController {
             return ResponseEntity.ok(existente.get());
         }
 
-        // DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+        // <-- CORRIGIDO: Descomentada a declaração de 'det'
+        DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
 
         FolhaDePagamento fol = new FolhaDePagamento();
         fol.setFuncionario(funcionario);
@@ -125,7 +129,8 @@ public class FolhaDePagamentoController {
                 geradas.add(existente.get());
             } else {
 
-                // DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+                // <-- CORRIGIDO: Descomentada a declaração de 'det'
+                DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
 
                 FolhaDePagamento fol = new FolhaDePagamento();
                 fol.setFuncionario(funcionario);

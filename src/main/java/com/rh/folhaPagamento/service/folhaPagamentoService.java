@@ -4,7 +4,8 @@ import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
 import org.springframework.stereotype.Service;
 
-// import java.io.File;
+// <-- DESCOMENTADO
+import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,9 +23,11 @@ public class folhaPagamentoService {
     private final CalculoINSS calculoINSS;
     private final CalculoIRRF calculoIRRF;
 
-    // private final ArquivoService arquivoService;
+    // <-- DESCOMENTADO
+    private final ArquivoService arquivoService;
 
-    // public folhaPagamentoService(
+    // <-- DESCOMENTADO (e adicionado '}')
+    public folhaPagamentoService(
             CalculoInsalubridade calculoInsalubridade,
             CalculoPericulosidade calculoPericulosidade,
             CalculoValeAlimentacao calculoVA,
@@ -39,10 +42,11 @@ public class folhaPagamentoService {
         this.calculoINSS = calculoINSS;
         this.calculoIRRF = calculoIRRF;
         this.arquivoService = arquivoService; // <-- Atribuição
-    }
+    } // <-- FALTAVA ESTA CHAVE
 
-    // public static class DetalheCalculo implements Serializable { // <-- "implements Serializable" da SUA branch
-        private static final long serialVersionUID = 1L; // <-- "serialVersionUID" da SUA branch
+    // <-- DESCOMENTADO (e adicionado '}')
+    public static class DetalheCalculo implements Serializable {
+        private static final long serialVersionUID = 1L;
 
         // Campos base
         public BigDecimal salarioBase;
@@ -55,7 +59,8 @@ public class folhaPagamentoService {
         public BigDecimal descontoINSS;
         public BigDecimal descontoIRRF;
 
-        // public BigDecimal insalubridade;
+        // <-- DESCOMENTADO
+        public BigDecimal insalubridade;
         public BigDecimal periculosidade;
         public BigDecimal valeAlimentacao;
         public BigDecimal valeTransporte;
@@ -66,19 +71,22 @@ public class folhaPagamentoService {
         public DetalheCalculo(BigDecimal salarioBruto, BigDecimal totalAdicionais,
                               BigDecimal totalBeneficios, BigDecimal totalDescontos,
                               BigDecimal salarioLiquido) {
+            this.salarioBase = salarioBruto; // <-- CORRIGIDO (estava salarioBruto)
             this.salarioBruto = salarioBruto;
             this.totalAdicionais = totalAdicionais;
             this.totalBeneficios = totalBeneficios;
             this.totalDescontos = totalDescontos;
             this.salarioLiquido = salarioLiquido;
         }
-    }
+    } // <-- FALTAVA ESTA CHAVE
 
-    // // public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis, int mes, int ano) {
+    // <-- DESCOMENTADO
+    public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis, int mes, int ano) {
 
         // === LÓGICA DE CACHE (DA SUA BRANCH) ===
 
-        // String nomeArquivo = "folha_func_" + funcionario.getId() + "_ano_" + ano + "_mes_" + mes + ".dat";
+        // <-- DESCOMENTADO
+        String nomeArquivo = "folha_func_" + funcionario.getId() + "_ano_" + ano + "_mes_" + mes + ".dat";
         File arquivoCache = new File(nomeArquivo);
 
         if (arquivoCache.exists()) {
@@ -93,7 +101,8 @@ public class folhaPagamentoService {
         // === CACHE MISS: CÁLCULO COMPLETO (LÓGICA DA BRANCH MAIN) ===
         System.out.println("CACHE MISS: Calculando folha para func: " + funcionario.getId() + " (Mês/Ano: " + mes + "/" + ano + ")");
 
-        // BigDecimal salarioBase = funcionario.getSalarioBase();
+        // <-- DESCOMENTADO
+        BigDecimal salarioBase = funcionario.getSalarioBase();
 
         // === ADICIONAIS ===
         List<BigDecimal> adicionais = new ArrayList<>();
@@ -158,7 +167,8 @@ public class folhaPagamentoService {
         r.valeAlimentacao = valorValeAlimentacao.setScale(2, RoundingMode.HALF_UP);
         r.valeTransporte = valorValeTransporte.setScale(2, RoundingMode.HALF_UP);
 
-        // System.out.println("Serializando novo cálculo em: " + nomeArquivo);
+        // <-- DESCOMENTADO
+        System.out.println("Serializando novo cálculo em: " + nomeArquivo);
         arquivoService.serializar(r, nomeArquivo);
 
         return r;

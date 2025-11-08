@@ -210,7 +210,7 @@ public class FuncionarioService {
 
         // Verifica se o termo de busca é nulo ou vazio
         if (cargo == null || cargo.trim().isEmpty()) {
-            return todosFuncionados;
+            // return todosFuncionarios;
         }
 
         final String termoBusca = cargo.trim().toLowerCase();
@@ -219,12 +219,11 @@ public class FuncionarioService {
                 .filter(f -> f.getCargo() != null && f.getCargo().toLowerCase().contains(termoBusca))
                 .collect(Collectors.toList());
     }
-
-    // /**
+    /**
      * Busca um funcionário serializado a partir de um arquivo .dat.
      * @param id O ID do funcionário a ser buscado.
-     * @return O objeto Funcionario, ou null se não for encontrado ou der erro.
-     */
+            * @return O objeto Funcionario, ou null se não for encontrado ou der erro.
+            */
     public Funcionario buscarFuncionarioDoArquivo(Integer id) {
         String nomeArquivo = "funcionario_" + id + ".dat";
         System.out.println("Tentando desserializar funcionário de: " + nomeArquivo);
