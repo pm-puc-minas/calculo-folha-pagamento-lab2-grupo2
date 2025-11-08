@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class folhaPagamentoService {
 
@@ -34,9 +35,6 @@ public class folhaPagamentoService {
     }
 
     public static class DetalheCalculo {
-        public DetalheCalculo() {
-            // construtor padrão
-        }
         public BigDecimal salarioBase;
         public BigDecimal salarioBruto;
         public BigDecimal totalAdicionais;
@@ -46,10 +44,17 @@ public class folhaPagamentoService {
         public BigDecimal totalAPagar;
         public BigDecimal descontoINSS;
         public BigDecimal descontoIRRF;
-        
-        // Construtor adicional para facilitar criação em testes
-        public DetalheCalculo(BigDecimal salarioBruto, BigDecimal totalAdicionais, BigDecimal totalBeneficios, BigDecimal totalDescontos, BigDecimal salarioLiquido) {
-            this.salarioBase = salarioBruto;
+        public BigDecimal insalubridade;
+        public BigDecimal periculosidade;
+        public BigDecimal valeAlimentacao;
+        public BigDecimal valeTransporte;
+
+        // 🔧 Construtor adicional para compatibilidade com testes antigos
+        public DetalheCalculo() {}
+
+        public DetalheCalculo(BigDecimal salarioBruto, BigDecimal totalAdicionais,
+                              BigDecimal totalBeneficios, BigDecimal totalDescontos,
+                              BigDecimal salarioLiquido) {
             this.salarioBruto = salarioBruto;
             this.totalAdicionais = totalAdicionais;
             this.totalBeneficios = totalBeneficios;
@@ -63,15 +68,18 @@ public class folhaPagamentoService {
 
         // === ADICIONAIS ===
         List<BigDecimal> adicionais = new ArrayList<>();
+        BigDecimal valorInsalubridade = BigDecimal.ZERO;
+        BigDecimal valorPericulosidade = BigDecimal.ZERO;
 
         if (funcionario.isAptoPericulosidade()) {
-            adicionais.add(calculoPericulosidade.calcular(funcionario));
+            valorPericulosidade = calculoPericulosidade.calcular(funcionario);
+            adicionais.add(valorPericulosidade);
         }
         if (funcionario.getGrauInsalubridade() > 0) {
-            adicionais.add(calculoInsalubridade.calcular(funcionario));
+            valorInsalubridade = calculoInsalubridade.calcular(funcionario);
+            adicionais.add(valorInsalubridade);
         }
 
-        // Soma usando Stream
         BigDecimal totalAdicionais = adicionais.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -80,27 +88,23 @@ public class folhaPagamentoService {
 
         // === DESCONTOS ===
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
-        funcionario.setDescontoINSS(descontoINSS);
         BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
+        BigDecimal valorValeTransporte = funcionario.isValeTransporte()
+                ? calculoVT.calcular(funcionario, diasUteis)
+                : BigDecimal.ZERO;
 
-        List<BigDecimal> descontos = new ArrayList<>();
-        descontos.add(descontoINSS);
-        descontos.add(descontoIRRF);
-
-        if (funcionario.isValeTransporte()) {
-            descontos.add(calculoVT.calcular(funcionario, diasUteis));
-        }
-
+        List<BigDecimal> descontos = List.of(descontoINSS, descontoIRRF, valorValeTransporte);
         BigDecimal totalDescontos = descontos.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        funcionario.setDescontoINSS(descontoINSS);
+
         // === BENEFÍCIOS ===
-        List<BigDecimal> beneficios = new ArrayList<>();
+        BigDecimal valorValeAlimentacao = funcionario.isValeAlimentacao()
+                ? calculoVA.calcular(funcionario, diasUteis)
+                : BigDecimal.ZERO;
 
-        if (funcionario.isValeAlimentacao()) {
-            beneficios.add(calculoVA.calcular(funcionario, diasUteis));
-        }
-
+        List<BigDecimal> beneficios = List.of(valorValeAlimentacao);
         BigDecimal totalBeneficios = beneficios.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -108,7 +112,7 @@ public class folhaPagamentoService {
         BigDecimal salarioLiquido = salarioBruto.subtract(totalDescontos);
         BigDecimal totalAPagar = salarioLiquido.add(totalBeneficios);
 
-        // === CRIAÇÃO DO OBJETO DE RETORNO ===
+        // === RETORNO ===
         DetalheCalculo r = new DetalheCalculo();
         r.salarioBase = salarioBase.setScale(2, RoundingMode.HALF_UP);
         r.salarioBruto = salarioBruto.setScale(2, RoundingMode.HALF_UP);
@@ -119,8 +123,11 @@ public class folhaPagamentoService {
         r.totalAPagar = totalAPagar.setScale(2, RoundingMode.HALF_UP);
         r.descontoINSS = descontoINSS.setScale(2, RoundingMode.HALF_UP);
         r.descontoIRRF = descontoIRRF.setScale(2, RoundingMode.HALF_UP);
+        r.insalubridade = valorInsalubridade.setScale(2, RoundingMode.HALF_UP);
+        r.periculosidade = valorPericulosidade.setScale(2, RoundingMode.HALF_UP);
+        r.valeAlimentacao = valorValeAlimentacao.setScale(2, RoundingMode.HALF_UP);
+        r.valeTransporte = valorValeTransporte.setScale(2, RoundingMode.HALF_UP);
 
         return r;
     }
-
 }

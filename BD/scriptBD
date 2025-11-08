@@ -35,6 +35,13 @@ CREATE TABLE IF NOT EXISTS folha_pagamento (
   total_beneficios DECIMAL(10,2) NOT NULL,
   total_descontos DECIMAL(10,2) NOT NULL,
   salario_liquido DECIMAL(10,2) NOT NULL,
+  insalubridade DECIMAL(10,2) DEFAULT 0,
+  periculosidade DECIMAL(10,2) DEFAULT 0,
+  vale_alimentacao DECIMAL(10,2) DEFAULT 0,
+  vale_transporte DECIMAL(10,2) DEFAULT 0,
+  inss DECIMAL(10,2) DEFAULT 0,
+  irrf DECIMAL(10,2) DEFAULT 0,
+
   funcionario_id INT NOT NULL,
   FOREIGN KEY (funcionario_id) REFERENCES funcionario(id)
 );

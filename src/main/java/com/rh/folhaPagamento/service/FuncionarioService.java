@@ -48,19 +48,32 @@ public class FuncionarioService {
             throw new IllegalArgumentException("salarioBase obrigatório");
         }
 
-        // --- 1. Criação do Usuário ---
+        // --- 1. Verificações de duplicidade ---
+        String login = dto.getLogin();
+        String cpfDigits = dto.getCpf() != null ? dto.getCpf().replaceAll("\\D", "") : null;
+
+        boolean loginExiste = usuarioRepository.existsByLogin(login);
+        boolean cpfExiste = funcionarioRepository.existsByCpf(cpfDigits);
+
+        if (loginExiste && cpfExiste) {
+            throw new IllegalArgumentException("Login e CPF já existentes.");
+        } else if (loginExiste) {
+            throw new IllegalArgumentException("Login já existente: " + login);
+        } else if (cpfExiste) {
+            throw new IllegalArgumentException("CPF já existente: " + dto.getCpf());
+        }
+
+        // --- 2. Criação do Usuário ---
         Usuario novoUsuario = new Usuario();
-        novoUsuario.setLogin(dto.getLogin());
-        // A SENHA AQUI PRECISA SER CRIPTOGRAFADA na vida real (o colega deve fazer isso)
+        novoUsuario.setLogin(login);
         novoUsuario.setSenha(dto.getSenha());
         novoUsuario.setPermissao(dto.getPermissao());
         Usuario usuarioS = usuarioRepository.save(novoUsuario);
         usuarioRepository.flush();
 
-        // --- 2. Criação do Funcionário ---
+        // --- 3. Criação do Funcionário ---
         Funcionario f = new Funcionario();
         f.setNome(dto.getNome());
-        String cpfDigits = dto.getCpf() != null ? dto.getCpf().replaceAll("\\D", "") : null;
         f.setCpf(cpfDigits);
         f.setCargo(dto.getCargo());
         f.setDependentes(dto.getDependentes());
@@ -77,17 +90,18 @@ public class FuncionarioService {
 
         f.setUsuario(usuarioS);
 
-        // --- 3. Cálculo da Folha e Persistência do Funcionário ---
+        // --- 4. Cálculo da Folha ---
         int diasUteis = dto.getDiasUteis() != null ? dto.getDiasUteis() : 22;
         DetalheCalculo det = folhaService.calcularFolha(f, diasUteis);
+
         Funcionario salvo = funcionarioRepository.save(f);
         funcionarioRepository.flush();
 
-        // IMPLEMENTAÇÃO DE EVENTOS: Disparo do Evento de Criação
+        // --- 5. Evento de Criação ---
         FuncionarioCriadoEvent event = new FuncionarioCriadoEvent(this, salvo);
         eventPublisher.publishEvent(event);
 
-        // --- 4. Criação da Folha de Pagamento ---
+        // --- 6. Criação da Folha de Pagamento ---
         java.time.LocalDate hoje = java.time.LocalDate.now();
         FolhaDePagamento fol = new FolhaDePagamento();
         fol.setFuncionario(salvo);
@@ -103,6 +117,8 @@ public class FuncionarioService {
 
         return salvo;
     }
+
+
 
     // =========================================================================
     // NOVO MÉTODO: Lógica de Ajuste Salarial com Disparo de Evento
