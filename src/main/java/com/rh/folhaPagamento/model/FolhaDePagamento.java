@@ -40,6 +40,24 @@ public class FolhaDePagamento implements Serializable {
     @Column(name = "salario_liquido", nullable = false)
     private BigDecimal salarioLiquido;
 
+    @Column(name = "valor_insalubridade")
+    private BigDecimal insalubridade;
+
+    @Column(name = "valor_periculosidade")
+    private BigDecimal periculosidade;
+
+    @Column(name = "valor_inss")
+    private BigDecimal inss;
+
+    @Column(name = "valor_irrf")
+    private BigDecimal irrf;
+
+    @Column(name = "valor_vale_alimentacao")
+    private BigDecimal valeAlimentacao;
+
+    @Column(name = "valor_vale_transporte")
+    private BigDecimal valeTransporte;
+
     @ManyToOne
     @JoinColumn(name = "funcionario_id", nullable = false)
     private Funcionario funcionario;

@@ -18,8 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 
-// ADICIONADO: Import do novo serviço
-import com.rh.folhaPagamento.service.ArquivoService;
+// import com.rh.folhaPagamento.service.ArquivoService;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +44,7 @@ public class FuncionarioService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    // ADICIONADO: Injeção do serviço de serialização
-    @Autowired
+    // @Autowired
     private ArquivoService arquivoService;
 
     @Transactional
@@ -55,20 +53,34 @@ public class FuncionarioService {
             throw new IllegalArgumentException("salarioBase obrigatório");
         }
 
-        // --- 1. Criação do Usuário ---
+        // --- 1. Verificações de duplicidade (DA BRANCH MAIN) ---
+        String login = dto.getLogin();
+        String cpfDigits = dto.getCpf() != null ? dto.getCpf().replaceAll("\\D", "") : null;
+
+        boolean loginExiste = usuarioRepository.existsByLogin(login);
+        boolean cpfExiste = funcionarioRepository.existsByCpf(cpfDigits);
+
+        if (loginExiste && cpfExiste) {
+            throw new IllegalArgumentException("Login e CPF já existentes.");
+        } else if (loginExiste) {
+            throw new IllegalArgumentException("Login já existente: " + login);
+        } else if (cpfExiste) {
+            throw new IllegalArgumentException("CPF já existente: " + dto.getCpf());
+        }
+
+        // --- 2. Criação do Usuário ---
         Usuario novoUsuario = new Usuario();
-        novoUsuario.setLogin(dto.getLogin());
+        novoUsuario.setLogin(login); // <-- Usa a variável 'login'
         // A SENHA AQUI PRECISA SER CRIPTOGRAFADA na vida real (o colega deve fazer isso)
         novoUsuario.setSenha(dto.getSenha());
         novoUsuario.setPermissao(dto.getPermissao());
         Usuario usuarioS = usuarioRepository.save(novoUsuario);
         usuarioRepository.flush();
 
-        // --- 2. Criação do Funcionário ---
+        // --- 3. Criação do Funcionário ---
         Funcionario f = new Funcionario();
         f.setNome(dto.getNome());
-        String cpfDigits = dto.getCpf() != null ? dto.getCpf().replaceAll("\\D", "") : null;
-        f.setCpf(cpfDigits);
+        f.setCpf(cpfDigits); // <-- Usa a variável 'cpfDigits'
         f.setCargo(dto.getCargo());
         f.setDependentes(dto.getDependentes());
         f.setSalarioBase(dto.getSalarioBase());
@@ -84,23 +96,23 @@ public class FuncionarioService {
 
         f.setUsuario(usuarioS);
 
-        // --- 3. Cálculo da Folha e Persistência do Funcionário ---
+        // --- 4. Cálculo da Folha (LÓGICA MESCLADA) ---
         int diasUteis = dto.getDiasUteis() != null ? dto.getDiasUteis() : 22;
 
-        // <-- CORREÇÃO APLICADA AQUI -->
-        // Precisamos da data atual para passar para o método calcularFolha
+        // <-- MUDANÇA DA SUA BRANCH: Pega 'hoje' para usar na nova assinatura
         java.time.LocalDate hoje = java.time.LocalDate.now();
+        // <-- MUDANÇA DA SUA BRANCH: Usa a assinatura com mes/ano
         DetalheCalculo det = folhaService.calcularFolha(f, diasUteis, hoje.getMonthValue(), hoje.getYear());
 
         Funcionario salvo = funcionarioRepository.save(f);
         funcionarioRepository.flush();
 
-        // IMPLEMENTAÇÃO DE EVENTOS: Disparo do Evento de Criação
+        // --- 5. Evento de Criação ---
         FuncionarioCriadoEvent event = new FuncionarioCriadoEvent(this, salvo);
         eventPublisher.publishEvent(event);
 
-        // --- 4. Criação da Folha de Pagamento ---
-        // A variável 'hoje' foi movida para cima
+        // --- 6. Criação da Folha de Pagamento ---
+        // (A variável 'hoje' já foi declarada acima)
         FolhaDePagamento fol = new FolhaDePagamento();
         fol.setFuncionario(salvo);
         fol.setMesReferencia(hoje.getMonthValue());
@@ -113,7 +125,7 @@ public class FuncionarioService {
         folhaPagamentoRepository.save(fol);
         folhaPagamentoRepository.flush();
 
-        // --- 5. SERIALIZAÇÃO DO NOVO FUNCIONÁRIO (ADICIONADO) ---
+        // --- 7. SERIALIZAÇÃO DO NOVO FUNCIONÁRIO (DA SUA BRANCH) ---
         try {
             String nomeArquivo = "funcionario_" + salvo.getId() + ".dat";
             System.out.println("Serializando funcionário recém-criado em: " + nomeArquivo);
@@ -127,7 +139,7 @@ public class FuncionarioService {
     }
 
     // =========================================================================
-    // NOVO MÉTODO: Lógica de Ajuste Salarial com Disparo de Evento
+    // MÉTODO ATUALIZAR SALÁRIO (MESCLADO)
     // =========================================================================
     @Transactional
     public Funcionario atualizarSalario(Integer id, BigDecimal novoSalario) {
@@ -140,11 +152,10 @@ public class FuncionarioService {
         // 2. Atualiza o salário base
         funcionario.setSalarioBase(novoSalario);
 
-        // 2.1 Recalcula campos derivados (salarioBruto, descontoINSS)
-
-        // <-- CORREÇÃO APLICADA AQUI -->
-        // Precisamos da data atual para recalcular a folha e invalidar o cache
+        // 2.1 Recalcula campos derivados (LÓGICA MESCLADA)
+        // <-- MUDANÇA DA SUA BRANCH: Pega 'hoje'
         java.time.LocalDate hoje = java.time.LocalDate.now();
+        // <-- MUDANÇA DA SUA BRANCH: Usa a assinatura com mes/ano
         folhaService.calcularFolha(funcionario, 22, hoje.getMonthValue(), hoje.getYear());
 
         // 3. Salva a alteração no banco de dados
@@ -154,7 +165,7 @@ public class FuncionarioService {
         AjusteSalarialEvent event = new AjusteSalarialEvent(this, salvo, salarioAntigo, novoSalario);
         eventPublisher.publishEvent(event);
 
-        // --- 5. SERIALIZAÇÃO DA ATUALIZAÇÃO (ADICIONADO) ---
+        // --- 5. SERIALIZAÇÃO DA ATUALIZAÇÃO (DA SUA BRANCH) ---
         try {
             String nomeArquivo = "funcionario_" + salvo.getId() + ".dat";
             System.out.println("Serializando atualização de salário em: " + nomeArquivo);
@@ -199,7 +210,7 @@ public class FuncionarioService {
 
         // Verifica se o termo de busca é nulo ou vazio
         if (cargo == null || cargo.trim().isEmpty()) {
-            return todosFuncionarios;
+            return todosFuncionados;
         }
 
         final String termoBusca = cargo.trim().toLowerCase();
@@ -209,7 +220,7 @@ public class FuncionarioService {
                 .collect(Collectors.toList());
     }
 
-    /**
+    // /**
      * Busca um funcionário serializado a partir de um arquivo .dat.
      * @param id O ID do funcionário a ser buscado.
      * @return O objeto Funcionario, ou null se não for encontrado ou der erro.

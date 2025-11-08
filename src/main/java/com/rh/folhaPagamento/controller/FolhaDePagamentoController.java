@@ -38,8 +38,8 @@ public class FolhaDePagamentoController {
 
     @PostMapping("/calcular")
     public Map<String, Object> calcular(@RequestBody DadosCalculoFolha dados) {
-
-        LocalDate hoje = LocalDate.now();
+        
+        // LocalDate hoje = LocalDate.now();
         DetalheCalculo r = folhaPagamentoService.calcularFolha(
                 dados.getFuncionario(),
                 dados.getDiasUteis(),
@@ -47,17 +47,23 @@ public class FolhaDePagamentoController {
                 hoje.getYear()
         );
 
-        return Map.of(
-                "salarioBase", r.salarioBase,
-                "salarioBruto", r.salarioBruto,
-                "totalAdicionais", r.totalAdicionais,
-                "totalBeneficios", r.totalBeneficios,
-                "totalDescontos", r.totalDescontos,
-                "salarioLiquido", r.salarioLiquido,
-                "totalAPagar", r.totalAPagar,
-                "descontoINSS", r.descontoINSS,
-                "descontoIRRF", r.descontoIRRF
-        );
+        // Map<String, Object> resultado = new java.util.HashMap<>();
+        resultado.put("salarioBase", r.salarioBase);
+        resultado.put("salarioBruto", r.salarioBruto);
+        resultado.put("totalAdicionais", r.totalAdicionais);
+        resultado.put("totalBeneficios", r.totalBeneficios);
+        resultado.put("totalDescontos", r.totalDescontos);
+        resultado.put("salarioLiquido", r.salarioLiquido);
+        resultado.put("totalAPagar", r.totalAPagar);
+        resultado.put("descontoINSS", r.descontoINSS);
+        resultado.put("descontoIRRF", r.descontoIRRF);
+
+        // resultado.put("insalubridade", r.insalubridade);
+        resultado.put("periculosidade", r.periculosidade);
+        resultado.put("valeAlimentacao", r.valeAlimentacao);
+        resultado.put("valeTransporte", r.valeTransporte);
+
+        return resultado;
     }
 
     @GetMapping("/by-login/{login}")
@@ -85,7 +91,7 @@ public class FolhaDePagamentoController {
             return ResponseEntity.ok(existente.get());
         }
 
-        DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+        // DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
 
         FolhaDePagamento fol = new FolhaDePagamento();
         fol.setFuncionario(funcionario);
@@ -119,7 +125,7 @@ public class FolhaDePagamentoController {
                 geradas.add(existente.get());
             } else {
 
-                DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+                // DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
 
                 FolhaDePagamento fol = new FolhaDePagamento();
                 fol.setFuncionario(funcionario);
