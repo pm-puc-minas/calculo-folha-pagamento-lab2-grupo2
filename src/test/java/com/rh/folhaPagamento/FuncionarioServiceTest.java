@@ -11,6 +11,10 @@ import com.rh.folhaPagamento.repository.UsuarioRepository;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 import com.rh.folhaPagamento.service.FuncionarioService;
 import com.rh.folhaPagamento.service.folhaPagamentoService;
+
+// ADICIONADO: Import do novo serviço
+import com.rh.folhaPagamento.service.ArquivoService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,11 +41,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FuncionarioServiceTest {
 
-    
+
     @InjectMocks
     private FuncionarioService funcionarioService;
 
-    
+
     @Mock
     private UsuarioRepository usuarioRepository;
 
@@ -57,22 +61,26 @@ class FuncionarioServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    // ADICIONADO: Mock para a nova dependência de serialização
+    @Mock
+    private ArquivoService arquivoService;
+
     private DetalheCalculo detalheCalculoMock;
 
     // SETUP INICIAL: Executado antes de CADA teste
     @BeforeEach
     void setUp() {
-        
+
         detalheCalculoMock = new DetalheCalculo(
-            new BigDecimal("5000.00"), // Salário Bruto
-            new BigDecimal("100.00"),  // Total Adicionais
-            new BigDecimal("50.00"),   // Total Benefícios
-            new BigDecimal("1000.00"), // Total Descontos
-            new BigDecimal("4150.00")  // Salário Líquido
+                new BigDecimal("5000.00"), // Salário Bruto
+                new BigDecimal("100.00"),  // Total Adicionais
+                new BigDecimal("50.00"),   // Total Benefícios
+                new BigDecimal("1000.00"), // Total Descontos
+                new BigDecimal("4150.00")  // Salário Líquido
         );
     }
 
-    
+
     private FuncionarioRequestDTO criarFuncionarioRequestDTO() {
         FuncionarioRequestDTO dto = new FuncionarioRequestDTO();
         dto.setNome("João Silva");
@@ -84,8 +92,8 @@ class FuncionarioServiceTest {
         dto.setDiasUteis(22);
         return dto;
     }
-    
-    
+
+
     private Funcionario criarFuncionario(Integer id, String nome, String cargo) {
         Funcionario f = new Funcionario();
         f.setId(id);
@@ -99,82 +107,88 @@ class FuncionarioServiceTest {
     @Test
     @DisplayName("Teste 1: Deve criar Funcionario, Folha, persistir e disparar Evento com sucesso")
     void criarFuncionario_Sucesso() {
-        
+
         FuncionarioRequestDTO dto = criarFuncionarioRequestDTO();
 
-        
+
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> {
             Usuario u = invocation.getArgument(0);
-            u.setId(1); 
+            u.setId(1);
             return u;
         });
 
-        when(folhaService.calcularFolha(any(Funcionario.class), anyInt())).thenReturn(detalheCalculoMock);
+        // CORRIGIDO: Adicionado anyInt() para mes e ano
+        when(folhaService.calcularFolha(any(Funcionario.class), anyInt(), anyInt(), anyInt())).thenReturn(detalheCalculoMock);
 
         when(funcionarioRepository.save(any(Funcionario.class))).thenAnswer(invocation -> {
             Funcionario f = invocation.getArgument(0);
-            f.setId(10); 
+            f.setId(10);
             return f;
         });
 
-        
+
         Funcionario resultado = funcionarioService.criarFuncionario(dto);
 
-        
+
         assertNotNull(resultado.getId());
         assertEquals("12345678900", resultado.getCpf(), "CPF deve ser salvo apenas com dígitos.");
 
-        
+
         verify(usuarioRepository, times(1)).save(any(Usuario.class));
         verify(usuarioRepository, times(1)).flush(); // Verifica o flush
-        verify(folhaService, times(1)).calcularFolha(any(Funcionario.class), eq(22)); 
+
+        // CORRIGIDO: Adicionado anyInt() para mes e ano
+        verify(folhaService, times(1)).calcularFolha(any(Funcionario.class), eq(22), anyInt(), anyInt());
         verify(funcionarioRepository, times(1)).save(any(Funcionario.class));
-        
-        
+
+
         ArgumentCaptor<FolhaDePagamento> folhaCaptor = ArgumentCaptor.forClass(FolhaDePagamento.class);
         verify(folhaPagamentoRepository, times(1)).save(folhaCaptor.capture());
-        
+
         FolhaDePagamento folhaSalva = folhaCaptor.getValue();
         assertEquals(new BigDecimal("5000.00"), folhaSalva.getSalarioBruto());
         assertEquals(new BigDecimal("4150.00"), folhaSalva.getSalarioLiquido());
-        
-        
+
+
         verify(eventPublisher, times(1)).publishEvent(any(FuncionarioCriadoEvent.class));
+
+        // ADICIONADO: Verifica se a serialização foi chamada
+        verify(arquivoService, times(1)).serializar(any(Funcionario.class), any(String.class));
     }
-    
+
     // TESTE DE VALIDAÇÃO: Verifica a exceção para salário base nulo
     @Test
     @DisplayName("Teste 2: Deve lançar exceção se salarioBase for nulo")
     void criarFuncionario_SalarioBaseNulo_Excecao() {
-         
-        FuncionarioRequestDTO dto = criarFuncionarioRequestDTO();
-        dto.setSalarioBase(null); 
 
-         
+        FuncionarioRequestDTO dto = criarFuncionarioRequestDTO();
+        dto.setSalarioBase(null);
+
+
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             funcionarioService.criarFuncionario(dto);
         });
 
         assertEquals("salarioBase obrigatório", exception.getMessage());
-        
-        
+
+
         verify(usuarioRepository, never()).save(any());
         verify(funcionarioRepository, never()).save(any());
     }
-    
+
     // TESTE DE BUSCA: Testa o método buscarPorLogin
     @Test
     @DisplayName("Teste 3: Deve buscar funcionário por login com sucesso")
     void buscarPorLogin_Encontrado() {
-        
+
         String login = "user.test";
         Funcionario funcionarioMock = criarFuncionario(2, "Alice", "Analista");
         when(funcionarioRepository.findByUsuario_Login(login)).thenReturn(Optional.of(funcionarioMock));
 
-        
+
         Optional<Funcionario> resultado = funcionarioService.buscarPorLogin(login);
 
-        
+
         assertTrue(resultado.isPresent());
         assertEquals("Alice", resultado.get().getNome());
     }
@@ -183,34 +197,34 @@ class FuncionarioServiceTest {
     @Test
     @DisplayName("Teste 4: Deve retornar a lista completa de todos os funcionários")
     void listarTodos_Sucesso() {
-        
+
         Funcionario f1 = criarFuncionario(1, "Func 1", "Cargo A");
         Funcionario f2 = criarFuncionario(2, "Func 2", "Cargo B");
         List<Funcionario> listaMock = Arrays.asList(f1, f2);
         when(funcionarioRepository.findAll()).thenReturn(listaMock);
 
-        
+
         List<Funcionario> resultado = funcionarioService.listarTodos();
 
-        
+
         assertEquals(2, resultado.size());
         verify(funcionarioRepository, times(1)).findAll();
     }
-    
+
     // TESTE DE MAPA: Testa o método getFuncionariosMap (Streams e Map)
     @Test
     @DisplayName("Teste 5: Deve retornar Map de funcionários com ID como chave")
     void getFuncionariosMap_Sucesso() {
-        
+
         Funcionario f1 = criarFuncionario(101, "Func 1", "Cargo X");
         Funcionario f2 = criarFuncionario(202, "Func 2", "Cargo Y");
         List<Funcionario> listaMock = Arrays.asList(f1, f2);
         when(funcionarioRepository.findAll()).thenReturn(listaMock);
 
-        
+
         Map<Integer, Funcionario> resultado = funcionarioService.getFuncionariosMap();
 
-        
+
         assertEquals(2, resultado.size());
         assertTrue(resultado.containsKey(101));
         assertEquals("Func 2", resultado.get(202).getNome());

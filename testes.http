@@ -1,0 +1,25 @@
+### Teste A: Criar um novo Funcionario
+POST http://localhost:8081/api/funcionarios
+Content-Type: application/json
+
+{
+  "nome": "Gabriel Teste",
+  "cpf": "11122233344",
+  "cargo": "Tester",
+  "dependentes": 0,
+  "salarioBase": 4500.00,
+  "aptoPericulosidade": false,
+  "grauInsalubridade": 0,
+  "valeTransporte": true,
+  "valeAlimentacao": true,
+  "valorVT": 150.00,
+  "valorVA": 300.00,
+  "login": "gabriel.teste",
+  "senha": "123",
+  "permissao": 2,
+  "diasUteis": 22
+}
+
+### Teste B: Calcular Folha (Testar Cache)
+# Use o login do funcionário que você acabou de criar (ex: gabriel.teste)
+POST http://localhost:8081/folha/gerar/gabriel.teste?mes=11&ano=2025

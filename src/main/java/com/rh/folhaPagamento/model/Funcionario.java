@@ -3,13 +3,17 @@ package com.rh.folhaPagamento.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable; // <-- ADICIONADO
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "funcionario")
 @Getter
 @Setter
-public class Funcionario {
+public class Funcionario implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

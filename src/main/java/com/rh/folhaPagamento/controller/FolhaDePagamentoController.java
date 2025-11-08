@@ -38,7 +38,15 @@ public class FolhaDePagamentoController {
 
     @PostMapping("/calcular")
     public Map<String, Object> calcular(@RequestBody DadosCalculoFolha dados) {
-        DetalheCalculo r = folhaPagamentoService.calcularFolha(dados.getFuncionario(), dados.getDiasUteis());
+
+        LocalDate hoje = LocalDate.now();
+        DetalheCalculo r = folhaPagamentoService.calcularFolha(
+                dados.getFuncionario(),
+                dados.getDiasUteis(),
+                hoje.getMonthValue(),
+                hoje.getYear()
+        );
+
         return Map.of(
                 "salarioBase", r.salarioBase,
                 "salarioBruto", r.salarioBruto,
@@ -61,9 +69,9 @@ public class FolhaDePagamentoController {
 
     @PostMapping("/gerar/{login}")
     public ResponseEntity<FolhaDePagamento> gerarFolhaEspecifica(@PathVariable String login,
-                                                                  @RequestParam int mes,
-                                                                  @RequestParam int ano,
-                                                                  @RequestParam(required = false) Integer diasUteis){
+                                                                 @RequestParam int mes,
+                                                                 @RequestParam int ano,
+                                                                 @RequestParam(required = false) Integer diasUteis){
         if(mes < 1 || mes > 12){
             return ResponseEntity.badRequest().build();
         }
@@ -76,7 +84,9 @@ public class FolhaDePagamentoController {
         if(existente.isPresent()){
             return ResponseEntity.ok(existente.get());
         }
-        DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias);
+
+        DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+
         FolhaDePagamento fol = new FolhaDePagamento();
         fol.setFuncionario(funcionario);
         fol.setMesReferencia(mes);
@@ -108,7 +118,9 @@ public class FolhaDePagamentoController {
             if(existente.isPresent()){
                 geradas.add(existente.get());
             } else {
-                DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias);
+
+                DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+
                 FolhaDePagamento fol = new FolhaDePagamento();
                 fol.setFuncionario(funcionario);
                 fol.setMesReferencia(mes);

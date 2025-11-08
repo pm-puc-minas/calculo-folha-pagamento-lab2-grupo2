@@ -4,6 +4,8 @@ import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.List;
 @Service
 public class folhaPagamentoService {
 
+    // --- SERVIÇOS DE CÁLCULO ---
     private final CalculoInsalubridade calculoInsalubridade;
     private final CalculoPericulosidade calculoPericulosidade;
     private final CalculoValeAlimentacao calculoVA;
@@ -18,22 +21,29 @@ public class folhaPagamentoService {
     private final CalculoINSS calculoINSS;
     private final CalculoIRRF calculoIRRF;
 
+    // --- SERVIÇO DE SERIALIZAÇÃO ---
+    private final ArquivoService arquivoService;
+
     public folhaPagamentoService(
             CalculoInsalubridade calculoInsalubridade,
             CalculoPericulosidade calculoPericulosidade,
             CalculoValeAlimentacao calculoVA,
             CalculoValeTransporte calculoVT,
             CalculoINSS calculoINSS,
-            CalculoIRRF calculoIRRF) {
+            CalculoIRRF calculoIRRF,
+            ArquivoService arquivoService) {
         this.calculoInsalubridade = calculoInsalubridade;
         this.calculoPericulosidade = calculoPericulosidade;
         this.calculoVA = calculoVA;
         this.calculoVT = calculoVT;
         this.calculoINSS = calculoINSS;
         this.calculoIRRF = calculoIRRF;
+        this.arquivoService = arquivoService;
     }
 
-    public static class DetalheCalculo {
+    public static class DetalheCalculo implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         public DetalheCalculo() {
             // construtor padrão
         }
@@ -46,7 +56,7 @@ public class folhaPagamentoService {
         public BigDecimal totalAPagar;
         public BigDecimal descontoINSS;
         public BigDecimal descontoIRRF;
-        
+
         // Construtor adicional para facilitar criação em testes
         public DetalheCalculo(BigDecimal salarioBruto, BigDecimal totalAdicionais, BigDecimal totalBeneficios, BigDecimal totalDescontos, BigDecimal salarioLiquido) {
             this.salarioBase = salarioBruto;
@@ -58,7 +68,29 @@ public class folhaPagamentoService {
         }
     }
 
-    public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis) {
+    // <-- MUDANÇA NA ASSINATURA: Adicionado mes e ano
+    public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis, int mes, int ano) {
+
+        // === LÓGICA DE CACHE (DESSERIALIZAÇÃO) ===
+
+        // <-- MUDANÇA NO NOME DO ARQUIVO: Agora inclui mes e ano
+        String nomeArquivo = "folha_func_" + funcionario.getId() + "_ano_" + ano + "_mes_" + mes + ".dat";
+
+        File arquivoCache = new File(nomeArquivo);
+
+        if (arquivoCache.exists()) {
+            System.out.println("CACHE HIT: Lendo arquivo existente: " + nomeArquivo);
+            Object objCache = arquivoService.desserializar(nomeArquivo);
+
+            if (objCache instanceof DetalheCalculo) {
+                // Se encontramos no cache, retornamos o objeto lido
+                return (DetalheCalculo) objCache;
+            }
+        }
+
+        // === CACHE MISS: CÁLCULO COMPLETO ===
+        System.out.println("CACHE MISS: Calculando folha para func: " + funcionario.getId() + " (Mês/Ano: " + mes + "/" + ano + ")");
+
         BigDecimal salarioBase = funcionario.getSalarioBase();
 
         // === ADICIONAIS ===
@@ -71,7 +103,6 @@ public class folhaPagamentoService {
             adicionais.add(calculoInsalubridade.calcular(funcionario));
         }
 
-        // Soma usando Stream
         BigDecimal totalAdicionais = adicionais.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -120,7 +151,9 @@ public class folhaPagamentoService {
         r.descontoINSS = descontoINSS.setScale(2, RoundingMode.HALF_UP);
         r.descontoIRRF = descontoIRRF.setScale(2, RoundingMode.HALF_UP);
 
+        System.out.println("Serializando novo cálculo em: " + nomeArquivo);
+        arquivoService.serializar(r, nomeArquivo);
+
         return r;
     }
-
 }
