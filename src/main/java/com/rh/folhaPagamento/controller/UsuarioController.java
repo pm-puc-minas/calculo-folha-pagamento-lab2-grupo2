@@ -90,11 +90,14 @@ public class UsuarioController {
         if(body.containsKey("valorVA")) f.setValorVA(new BigDecimal(String.valueOf(body.get("valorVA"))));
 
         int diasUteis = body.containsKey("diasUteis") ? Integer.parseInt(String.valueOf(body.get("diasUteis"))) : 22;
-        var det = folhaPagamentoService.calcularFolha(f, diasUteis);
+
+
+        LocalDate hoje = LocalDate.now();
+        var det = folhaPagamentoService.calcularFolha(f, diasUteis, hoje.getMonthValue(), hoje.getYear());
 
         funcionarioRepository.save(f);
 
-        LocalDate hoje = LocalDate.now();
+        // A variável 'hoje' já foi definida acima
         folhaPagamentoRepository.findByFuncionarioAndMesReferenciaAndAnoReferencia(f, hoje.getMonthValue(), hoje.getYear())
                 .ifPresent(fp -> {
                     fp.setSalarioBruto(det.salarioBruto);

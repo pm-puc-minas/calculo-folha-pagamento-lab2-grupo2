@@ -4,13 +4,17 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable; // <-- ADICIONADO
 import java.math.BigDecimal;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "folha_pagamento")
-public class FolhaDePagamento {
+public class FolhaDePagamento implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

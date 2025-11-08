@@ -3,6 +3,10 @@ import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
 import com.rh.folhaPagamento.service.folhaPagamentoService;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
+
+// ADICIONADO: Import do novo serviço que precisa ser mockado
+import com.rh.folhaPagamento.service.ArquivoService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,10 +36,17 @@ class FolhaPagamentoServiceTest {
     @Mock private CalculoINSS calculoINSS;
     @Mock private CalculoIRRF calculoIRRF;
 
+    // ADICIONADO: Mock para a nova dependência de serialização
+    @Mock private ArquivoService arquivoService;
+
 
     private Funcionario funcionario;
     private final int DIAS_UTEIS = 22;
     private final BigDecimal SALARIO_BASE_TESTE = new BigDecimal("3000.00");
+
+    // ADICIONADO: Constantes de data para o método
+    private final int MES_TESTE = 11;
+    private final int ANO_TESTE = 2025;
 
     @BeforeEach
     void setUp() {
@@ -65,7 +76,8 @@ class FolhaPagamentoServiceTest {
 
         BigDecimal resultadoEsperado = new BigDecimal("2600.00").setScale(2, RoundingMode.HALF_UP);
 
-        DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS);
+        // CORRIGIDO: Adicionado mes e ano na chamada
+        DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS, MES_TESTE, ANO_TESTE);
         BigDecimal resultadoAtual = r.totalAPagar;
 
         assertEquals(resultadoEsperado, resultadoAtual, "O cálculo total no cenário base falhou.");
@@ -99,7 +111,8 @@ class FolhaPagamentoServiceTest {
 
         BigDecimal resultadoEsperado = new BigDecimal("3410.00").setScale(2, RoundingMode.HALF_UP);
 
-        DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS);
+        // CORRIGIDO: Adicionado mes e ano na chamada
+        DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS, MES_TESTE, ANO_TESTE);
         BigDecimal resultadoAtual = r.totalAPagar;
 
         assertEquals(resultadoEsperado, resultadoAtual, "O cálculo com adicionais e benefícios falhou.");

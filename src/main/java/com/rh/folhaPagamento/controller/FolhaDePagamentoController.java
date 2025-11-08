@@ -38,9 +38,16 @@ public class FolhaDePagamentoController {
 
     @PostMapping("/calcular")
     public Map<String, Object> calcular(@RequestBody DadosCalculoFolha dados) {
-        DetalheCalculo r = folhaPagamentoService.calcularFolha(dados.getFuncionario(), dados.getDiasUteis());
+        
+        // LocalDate hoje = LocalDate.now();
+        DetalheCalculo r = folhaPagamentoService.calcularFolha(
+                dados.getFuncionario(),
+                dados.getDiasUteis(),
+                hoje.getMonthValue(),
+                hoje.getYear()
+        );
 
-        Map<String, Object> resultado = new java.util.HashMap<>();
+        // Map<String, Object> resultado = new java.util.HashMap<>();
         resultado.put("salarioBase", r.salarioBase);
         resultado.put("salarioBruto", r.salarioBruto);
         resultado.put("totalAdicionais", r.totalAdicionais);
@@ -50,15 +57,14 @@ public class FolhaDePagamentoController {
         resultado.put("totalAPagar", r.totalAPagar);
         resultado.put("descontoINSS", r.descontoINSS);
         resultado.put("descontoIRRF", r.descontoIRRF);
-        resultado.put("insalubridade", r.insalubridade);
+
+        // resultado.put("insalubridade", r.insalubridade);
         resultado.put("periculosidade", r.periculosidade);
         resultado.put("valeAlimentacao", r.valeAlimentacao);
         resultado.put("valeTransporte", r.valeTransporte);
 
         return resultado;
     }
-
-
 
     @GetMapping("/by-login/{login}")
     public List<FolhaDePagamento> folhasPorLogin(@PathVariable String login){
@@ -69,9 +75,9 @@ public class FolhaDePagamentoController {
 
     @PostMapping("/gerar/{login}")
     public ResponseEntity<FolhaDePagamento> gerarFolhaEspecifica(@PathVariable String login,
-                                                                  @RequestParam int mes,
-                                                                  @RequestParam int ano,
-                                                                  @RequestParam(required = false) Integer diasUteis){
+                                                                 @RequestParam int mes,
+                                                                 @RequestParam int ano,
+                                                                 @RequestParam(required = false) Integer diasUteis){
         if(mes < 1 || mes > 12){
             return ResponseEntity.badRequest().build();
         }
@@ -84,7 +90,9 @@ public class FolhaDePagamentoController {
         if(existente.isPresent()){
             return ResponseEntity.ok(existente.get());
         }
-        DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias);
+
+        // DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+
         FolhaDePagamento fol = new FolhaDePagamento();
         fol.setFuncionario(funcionario);
         fol.setMesReferencia(mes);
@@ -116,7 +124,9 @@ public class FolhaDePagamentoController {
             if(existente.isPresent()){
                 geradas.add(existente.get());
             } else {
-                DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias);
+
+                // DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
+
                 FolhaDePagamento fol = new FolhaDePagamento();
                 fol.setFuncionario(funcionario);
                 fol.setMesReferencia(mes);
