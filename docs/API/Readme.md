@@ -38,15 +38,15 @@ Para executar a aplicação diretamente via plugin Spring Boot (modo desenvolvim
 .\mvnw.cmd spring-boot:run
 ```
 
-Usando Docker Compose (se houver configuração no repositório):
+Usando Docker Compose (Alternativa):
 
 ```powershell
-docker-compose up --build
+docker compose up -d --build
 ```
 
 ## Endpoints principais
 
-Base URL (padrão): http://localhost:8080
+Base URL (padrão): http://localhost:8080 - BACKEND | Caso queira rodar pelo frontend (que está em desenvolvimento) só acessar http://localhost:3000 com o projeto rodando, e inserir no login e senha "admin"
 
 1) Autenticação
 
