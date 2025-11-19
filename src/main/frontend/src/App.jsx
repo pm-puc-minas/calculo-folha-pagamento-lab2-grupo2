@@ -6,8 +6,13 @@ import SalaryHistory from './components/SalaryHistory';
 import AdminPage from './components/AdminPage';
 
 function PrivateRoute({ children }) {
-  const isAuth = !!localStorage.getItem('auth');
-  return isAuth ? children : <Navigate to="/login" replace />;
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('user') || 'null');
+  } catch {
+    user = null;
+  }
+  return user ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
@@ -43,7 +48,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 export default App

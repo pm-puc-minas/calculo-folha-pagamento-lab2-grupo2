@@ -91,4 +91,19 @@ public class FuncionarioController {
     public Map<Integer, Funcionario> getFuncionariosMap() {
         return funcionarioService.getFuncionariosMap();
     }
+
+    // =========================================================================
+    // 6. ATUALIZAR PARCIALMENTE FUNCIONÁRIO (PATCH)
+    // =========================================================================
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> atualizarParcial(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+        try {
+            Funcionario atualizado = funcionarioService.atualizarParcial(id, body);
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Erro na atualização de funcionário");
+        }
+    }
 }

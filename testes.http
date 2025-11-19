@@ -1,5 +1,5 @@
 ### Teste A: Criar um novo Funcionario
-POST http://localhost:8081/api/funcionarios
+POST http://localhost:8080/api/funcionarios
 Content-Type: application/json
 
 {
@@ -22,4 +22,4 @@ Content-Type: application/json
 
 ### Teste B: Calcular Folha (Testar Cache)
 # Use o login do funcionário que você acabou de criar (ex: gabriel.teste)
-POST http://localhost:8081/folha/gerar/gabriel.teste?mes=11&ano=2025
+POST http://localhost:8080/folha/gerar/gabriel.teste?mes=11&ano=2025

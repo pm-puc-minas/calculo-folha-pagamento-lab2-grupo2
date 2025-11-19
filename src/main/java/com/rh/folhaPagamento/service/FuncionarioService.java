@@ -237,4 +237,40 @@ public class FuncionarioService {
         System.out.println("Arquivo " + nomeArquivo + " não encontrado ou não é um Funcionario.");
         return null;
     }
+
+    public Funcionario atualizarParcial(Integer id, Map<String, Object> body) {
+        Funcionario f = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
+
+        if (body.containsKey("cargo")) {
+            f.setCargo(String.valueOf(body.get("cargo")));
+        }
+        if (body.containsKey("dependentes")) {
+            f.setDependentes(Integer.parseInt(String.valueOf(body.get("dependentes"))));
+        }
+        if (body.containsKey("salarioBase")) {
+            f.setSalarioBase(new BigDecimal(String.valueOf(body.get("salarioBase"))));
+        }
+        if (body.containsKey("aptoPericulosidade")) {
+            f.setAptoPericulosidade(Boolean.parseBoolean(String.valueOf(body.get("aptoPericulosidade"))));
+        }
+        if (body.containsKey("grauInsalubridade")) {
+            f.setGrauInsalubridade(Integer.parseInt(String.valueOf(body.get("grauInsalubridade"))));
+        }
+        if (body.containsKey("valeTransporte")) {
+            f.setValeTransporte(Boolean.parseBoolean(String.valueOf(body.get("valeTransporte"))));
+        }
+        if (body.containsKey("valeAlimentacao")) {
+            f.setValeAlimentacao(Boolean.parseBoolean(String.valueOf(body.get("valeAlimentacao"))));
+        }
+        if (body.containsKey("valorVT")) {
+            f.setValorVT(new BigDecimal(String.valueOf(body.get("valorVT"))));
+        }
+        if (body.containsKey("valorVA")) {
+            f.setValorVA(new BigDecimal(String.valueOf(body.get("valorVA"))));
+        }
+
+        return funcionarioRepository.save(f);
+    }
 }
+
