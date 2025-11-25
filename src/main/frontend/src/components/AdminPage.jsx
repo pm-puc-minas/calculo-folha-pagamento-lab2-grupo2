@@ -189,8 +189,6 @@ export default function AdminPage(){
 
       if(funcForm.id){
         const funcPayload = {}
-        if(funcForm.nome) funcPayload.nome = funcForm.nome
-        if(funcForm.cpf) funcPayload.cpf = (funcForm.cpf||'').replace(/\D/g,'')
         if(funcForm.cargo) funcPayload.cargo = funcForm.cargo
         if(funcForm.dependentes !== '') funcPayload.dependentes = Number(funcForm.dependentes||0)
         if(funcForm.salarioBase) funcPayload.salarioBase = parseCurrencyBRLToNumber(funcForm.salarioBase)

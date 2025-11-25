@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 public class FuncionarioService {
@@ -242,35 +243,71 @@ public class FuncionarioService {
         Funcionario f = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
 
+        boolean precisaRecalcularFolha = false;
+
         if (body.containsKey("cargo")) {
             f.setCargo(String.valueOf(body.get("cargo")));
         }
         if (body.containsKey("dependentes")) {
             f.setDependentes(Integer.parseInt(String.valueOf(body.get("dependentes"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("salarioBase")) {
             f.setSalarioBase(new BigDecimal(String.valueOf(body.get("salarioBase"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("aptoPericulosidade")) {
             f.setAptoPericulosidade(Boolean.parseBoolean(String.valueOf(body.get("aptoPericulosidade"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("grauInsalubridade")) {
             f.setGrauInsalubridade(Integer.parseInt(String.valueOf(body.get("grauInsalubridade"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("valeTransporte")) {
             f.setValeTransporte(Boolean.parseBoolean(String.valueOf(body.get("valeTransporte"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("valeAlimentacao")) {
             f.setValeAlimentacao(Boolean.parseBoolean(String.valueOf(body.get("valeAlimentacao"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("valorVT")) {
             f.setValorVT(new BigDecimal(String.valueOf(body.get("valorVT"))));
+            precisaRecalcularFolha = true;
         }
         if (body.containsKey("valorVA")) {
             f.setValorVA(new BigDecimal(String.valueOf(body.get("valorVA"))));
+            precisaRecalcularFolha = true;
         }
 
-        return funcionarioRepository.save(f);
+        Funcionario fsalvo = funcionarioRepository.save(f);
+
+        if (precisaRecalcularFolha) {
+            int diasUteis = body.containsKey("diasUteis") ? Integer.parseInt(String.valueOf(body.get("diasUteis"))) : 22;
+
+            LocalDate hoje = LocalDate.now();
+            int mes = hoje.getMonthValue();
+            int ano = hoje.getYear();
+
+            folhaPagamentoService.DetalheCalculo det = folhaService.calcularFolha(fsalvo, diasUteis, mes, ano);
+
+            FolhaDePagamento folha = folhaPagamentoRepository
+                    .findByFuncionarioAndMesReferenciaAndAnoReferencia(fsalvo, mes, ano)
+                    .orElseGet(FolhaDePagamento::new);
+
+            folha.setFuncionario(fsalvo);
+            folha.setMesReferencia(mes);
+            folha.setAnoReferencia(ano);
+            folha.setSalarioBruto(det.salarioBruto);
+            folha.setTotalAdicionais(det.totalAdicionais);
+            folha.setTotalBeneficios(det.totalBeneficios);
+            folha.setTotalDescontos(det.totalDescontos);
+            folha.setSalarioLiquido(det.salarioLiquido);
+
+            folhaPagamentoRepository.save(folha);
+        }
+
+        return fsalvo;
     }
 }
-
