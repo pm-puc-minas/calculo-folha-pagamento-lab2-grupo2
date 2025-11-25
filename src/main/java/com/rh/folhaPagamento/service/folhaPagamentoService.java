@@ -4,8 +4,6 @@ import com.rh.folhaPagamento.model.Funcionario;
 import com.rh.folhaPagamento.service.calculation.*;
 import org.springframework.stereotype.Service;
 
-// <-- DESCOMENTADO
-import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,7 +13,6 @@ import java.util.List;
 @Service
 public class folhaPagamentoService {
 
-    // --- SERVIÇOS DE CÁLCULO ---
     private final CalculoInsalubridade calculoInsalubridade;
     private final CalculoPericulosidade calculoPericulosidade;
     private final CalculoValeAlimentacao calculoVA;
@@ -23,32 +20,24 @@ public class folhaPagamentoService {
     private final CalculoINSS calculoINSS;
     private final CalculoIRRF calculoIRRF;
 
-    // <-- DESCOMENTADO
-    private final ArquivoService arquivoService;
-
-    // <-- DESCOMENTADO (e adicionado '}')
     public folhaPagamentoService(
             CalculoInsalubridade calculoInsalubridade,
             CalculoPericulosidade calculoPericulosidade,
             CalculoValeAlimentacao calculoVA,
             CalculoValeTransporte calculoVT,
             CalculoINSS calculoINSS,
-            CalculoIRRF calculoIRRF,
-            ArquivoService arquivoService) { // <-- Injeção do novo serviço
+            CalculoIRRF calculoIRRF) {
         this.calculoInsalubridade = calculoInsalubridade;
         this.calculoPericulosidade = calculoPericulosidade;
         this.calculoVA = calculoVA;
         this.calculoVT = calculoVT;
         this.calculoINSS = calculoINSS;
         this.calculoIRRF = calculoIRRF;
-        this.arquivoService = arquivoService; // <-- Atribuição
-    } // <-- FALTAVA ESTA CHAVE
+    }
 
-    // <-- DESCOMENTADO (e adicionado '}')
     public static class DetalheCalculo implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        // Campos base
         public BigDecimal salarioBase;
         public BigDecimal salarioBruto;
         public BigDecimal totalAdicionais;
@@ -58,53 +47,28 @@ public class folhaPagamentoService {
         public BigDecimal totalAPagar;
         public BigDecimal descontoINSS;
         public BigDecimal descontoIRRF;
-
-        // <-- DESCOMENTADO
         public BigDecimal insalubridade;
         public BigDecimal periculosidade;
         public BigDecimal valeAlimentacao;
         public BigDecimal valeTransporte;
 
-        // Construtores das duas branches (são compatíveis)
         public DetalheCalculo() {}
 
         public DetalheCalculo(BigDecimal salarioBruto, BigDecimal totalAdicionais,
                               BigDecimal totalBeneficios, BigDecimal totalDescontos,
                               BigDecimal salarioLiquido) {
-            this.salarioBase = salarioBruto; // <-- CORRIGIDO (estava salarioBruto)
+            this.salarioBase = salarioBruto;
             this.salarioBruto = salarioBruto;
             this.totalAdicionais = totalAdicionais;
             this.totalBeneficios = totalBeneficios;
             this.totalDescontos = totalDescontos;
             this.salarioLiquido = salarioLiquido;
         }
-    } // <-- FALTAVA ESTA CHAVE
+    }
 
-    // <-- DESCOMENTADO
     public DetalheCalculo calcularFolha(Funcionario funcionario, int diasUteis, int mes, int ano) {
-
-        // === LÓGICA DE CACHE (DA SUA BRANCH) ===
-
-        // <-- DESCOMENTADO
-        String nomeArquivo = "folha_func_" + funcionario.getId() + "_ano_" + ano + "_mes_" + mes + ".dat";
-        File arquivoCache = new File(nomeArquivo);
-
-        if (arquivoCache.exists()) {
-            System.out.println("CACHE HIT: Lendo arquivo existente: " + nomeArquivo);
-            Object objCache = arquivoService.desserializar(nomeArquivo);
-
-            if (objCache instanceof DetalheCalculo) {
-                return (DetalheCalculo) objCache;
-            }
-        }
-
-        // === CACHE MISS: CÁLCULO COMPLETO (LÓGICA DA BRANCH MAIN) ===
-        System.out.println("CACHE MISS: Calculando folha para func: " + funcionario.getId() + " (Mês/Ano: " + mes + "/" + ano + ")");
-
-        // <-- DESCOMENTADO
         BigDecimal salarioBase = funcionario.getSalarioBase();
 
-        // === ADICIONAIS ===
         List<BigDecimal> adicionais = new ArrayList<>();
         BigDecimal valorInsalubridade = BigDecimal.ZERO;
         BigDecimal valorPericulosidade = BigDecimal.ZERO;
@@ -124,7 +88,6 @@ public class folhaPagamentoService {
         BigDecimal salarioBruto = salarioBase.add(totalAdicionais);
         funcionario.setSalarioBruto(salarioBruto);
 
-        // === DESCONTOS ===
         BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
         BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
         BigDecimal valorValeTransporte = funcionario.isValeTransporte()
@@ -137,7 +100,6 @@ public class folhaPagamentoService {
 
         funcionario.setDescontoINSS(descontoINSS);
 
-        // === BENEFÍCIOS ===
         BigDecimal valorValeAlimentacao = funcionario.isValeAlimentacao()
                 ? calculoVA.calcular(funcionario, diasUteis)
                 : BigDecimal.ZERO;
@@ -146,11 +108,9 @@ public class folhaPagamentoService {
         BigDecimal totalBeneficios = beneficios.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // === CÁLCULOS FINAIS ===
         BigDecimal salarioLiquido = salarioBruto.subtract(totalDescontos);
         BigDecimal totalAPagar = salarioLiquido.add(totalBeneficios);
 
-        // === RETORNO (Lógica da MAIN para preencher TODOS os campos) ===
         DetalheCalculo r = new DetalheCalculo();
         r.salarioBase = salarioBase.setScale(2, RoundingMode.HALF_UP);
         r.salarioBruto = salarioBruto.setScale(2, RoundingMode.HALF_UP);
@@ -161,15 +121,11 @@ public class folhaPagamentoService {
         r.totalAPagar = totalAPagar.setScale(2, RoundingMode.HALF_UP);
         r.descontoINSS = descontoINSS.setScale(2, RoundingMode.HALF_UP);
         r.descontoIRRF = descontoIRRF.setScale(2, RoundingMode.HALF_UP);
-        // Preenchendo os campos novos da MAIN
         r.insalubridade = valorInsalubridade.setScale(2, RoundingMode.HALF_UP);
         r.periculosidade = valorPericulosidade.setScale(2, RoundingMode.HALF_UP);
         r.valeAlimentacao = valorValeAlimentacao.setScale(2, RoundingMode.HALF_UP);
         r.valeTransporte = valorValeTransporte.setScale(2, RoundingMode.HALF_UP);
 
-        // <-- DESCOMENTADO
-        System.out.println("Serializando novo cálculo em: " + nomeArquivo);
-        arquivoService.serializar(r, nomeArquivo);
 
         return r;
     }

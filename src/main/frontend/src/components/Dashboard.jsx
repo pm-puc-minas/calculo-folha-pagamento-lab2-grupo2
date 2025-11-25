@@ -76,11 +76,24 @@ export default function Dashboard() {
 
   const user = funcionario || JSON.parse(localStorage.getItem('user') || 'null');
 
-  const ultimaFolha = useMemo(() => folhas && folhas.length ? folhas[folhas.length-1] : null, [folhas]);
+  const ultimaFolha = useMemo(() => {
+    if (!folhas || !folhas.length) return null;
+    const ordenadas = [...folhas].sort((a, b) => {
+      if ((a.anoReferencia || 0) !== (b.anoReferencia || 0)) {
+        return (a.anoReferencia || 0) - (b.anoReferencia || 0);
+      }
+      return (a.mesReferencia || 0) - (b.mesReferencia || 0);
+    });
+    return ordenadas[ordenadas.length - 1];
+  }, [folhas]);
 
   const salarioBase = funcionario?.salarioBase ?? 0;
   const salarioBruto = ultimaFolha?.salarioBruto ?? funcionario?.salarioBruto ?? 0;
   const salarioLiquido = ultimaFolha?.salarioLiquido ?? (salarioBruto - (Number(funcionario?.descontoINSS || 0)));
+
+  const inss = Number(funcionario?.descontoINSS || 0);
+  const totalDescontosFolha = Number(ultimaFolha?.totalDescontos || 0);
+  const valeTransporteDesconto = Math.max(totalDescontosFolha - inss - Number(irrf || 0), 0);
 
   return (
     <div className="dashboard-layout">
@@ -109,9 +122,10 @@ export default function Dashboard() {
               </Card>
               <Card title="Descontos">
                 <ul className="list">
-                  <li>INSS: R$ {Number(funcionario?.descontoINSS || 0).toFixed(2)}</li>
+                  <li>INSS: R$ {inss.toFixed(2)}</li>
                   <li>IRRF: R$ {Number(irrf).toFixed(2)}</li>
-                  <li>Total descontos: R$ {Number(ultimaFolha?.totalDescontos || 0).toFixed(2)}</li>
+                  <li>Vale transporte: R$ {valeTransporteDesconto.toFixed(2)}</li>
+                  <li>Total descontos: R$ {totalDescontosFolha.toFixed(2)}</li>
                 </ul>
               </Card>
             </section>

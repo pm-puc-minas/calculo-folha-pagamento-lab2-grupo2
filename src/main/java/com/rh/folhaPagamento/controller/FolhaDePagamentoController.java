@@ -39,7 +39,6 @@ public class FolhaDePagamentoController {
     @PostMapping("/calcular")
     public Map<String, Object> calcular(@RequestBody DadosCalculoFolha dados) {
 
-        // <-- CORRIGIDO: Descomentada a declaração de 'hoje'
         LocalDate hoje = LocalDate.now();
         DetalheCalculo r = folhaPagamentoService.calcularFolha(
                 dados.getFuncionario(),
@@ -48,7 +47,6 @@ public class FolhaDePagamentoController {
                 hoje.getYear()
         );
 
-        // <-- CORRIGIDO: Descomentada a declaração de 'resultado'
         Map<String, Object> resultado = new java.util.HashMap<>();
         resultado.put("salarioBase", r.salarioBase);
         resultado.put("salarioBruto", r.salarioBruto);
@@ -59,8 +57,6 @@ public class FolhaDePagamentoController {
         resultado.put("totalAPagar", r.totalAPagar);
         resultado.put("descontoINSS", r.descontoINSS);
         resultado.put("descontoIRRF", r.descontoIRRF);
-
-        // <-- CORRIGIDO: Descomentado (isto veio da branch 'main' na mesclagem)
         resultado.put("insalubridade", r.insalubridade);
         resultado.put("periculosidade", r.periculosidade);
         resultado.put("valeAlimentacao", r.valeAlimentacao);
@@ -94,7 +90,6 @@ public class FolhaDePagamentoController {
             return ResponseEntity.ok(existente.get());
         }
 
-        // <-- CORRIGIDO: Descomentada a declaração de 'det'
         DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
 
         FolhaDePagamento fol = new FolhaDePagamento();
@@ -106,6 +101,12 @@ public class FolhaDePagamentoController {
         fol.setTotalBeneficios(det.totalBeneficios);
         fol.setTotalDescontos(det.totalDescontos);
         fol.setSalarioLiquido(det.salarioLiquido);
+        fol.setInsalubridade(det.insalubridade);
+        fol.setPericulosidade(det.periculosidade);
+        fol.setValeAlimentacao(det.valeAlimentacao);
+        fol.setValeTransporte(det.valeTransporte);
+        fol.setInss(det.descontoINSS);
+        fol.setIrrf(det.descontoIRRF);
         return ResponseEntity.ok(folhaPagamentoRepository.save(fol));
     }
 
@@ -128,8 +129,6 @@ public class FolhaDePagamentoController {
             if(existente.isPresent()){
                 geradas.add(existente.get());
             } else {
-
-                // <-- CORRIGIDO: Descomentada a declaração de 'det'
                 DetalheCalculo det = folhaPagamentoService.calcularFolha(funcionario, dias, mes, ano);
 
                 FolhaDePagamento fol = new FolhaDePagamento();
@@ -141,6 +140,12 @@ public class FolhaDePagamentoController {
                 fol.setTotalBeneficios(det.totalBeneficios);
                 fol.setTotalDescontos(det.totalDescontos);
                 fol.setSalarioLiquido(det.salarioLiquido);
+                fol.setInsalubridade(det.insalubridade);
+                fol.setPericulosidade(det.periculosidade);
+                fol.setValeAlimentacao(det.valeAlimentacao);
+                fol.setValeTransporte(det.valeTransporte);
+                fol.setInss(det.descontoINSS);
+                fol.setIrrf(det.descontoIRRF);
                 geradas.add(folhaPagamentoRepository.save(fol));
             }
             cursor = cursor.minusMonths(1);
