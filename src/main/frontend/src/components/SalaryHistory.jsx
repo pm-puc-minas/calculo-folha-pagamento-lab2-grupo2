@@ -3,6 +3,7 @@ import { api } from '../services/api';
 import './Dashboard.css';
 import { Sidebar } from './Dashboard';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function formatBRL(v){
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v||0));
@@ -38,6 +39,38 @@ export default function SalaryHistory(){
   },[login, navigate]);
 
   const ultimo = folhas.length ? folhas[folhas.length-1] : null;
+
+  const chartData = folhas.map(f => ({
+    referencia: `${String(f.mesReferencia).padStart(2,'0')}/${f.anoReferencia}`,
+    'Salário Bruto': Number(f.salarioBruto || 0),
+    'Salário Líquido': Number(f.salarioLiquido || 0),
+    'Descontos': Number(f.totalDescontos || 0),
+    'Benefícios': Number(f.totalBeneficios || 0),
+  }));
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          background: 'rgba(26, 26, 26, 0.95)',
+          border: '1px solid var(--border)',
+          borderRadius: '8px',
+          padding: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: 'var(--accent)' }}>
+            {payload[0].payload.referencia}
+          </p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ margin: '4px 0', color: entry.color, fontSize: '0.9rem' }}>
+              {entry.name}: {formatBRL(entry.value)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="dashboard-layout">
@@ -93,9 +126,88 @@ export default function SalaryHistory(){
             </section>
 
             <section className="card">
-              <div className="card-title">Gráfico</div>
+              <div className="card-title">Evolução Salarial</div>
               <div className="card-body">
-                <div className="muted">Falta fazer</div>
+                {folhas.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={350}>
+                    <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
+                      <XAxis 
+                        dataKey="referencia" 
+                        stroke="var(--muted)"
+                        style={{ fontSize: '0.85rem' }}
+                      />
+                      <YAxis 
+                        stroke="var(--muted)"
+                        style={{ fontSize: '0.85rem' }}
+                        tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend 
+                        wrapperStyle={{ paddingTop: '20px' }}
+                        iconType="circle"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="Salário Bruto" 
+                        stroke="#94BF36" 
+                        strokeWidth={3}
+                        dot={{ fill: '#94BF36', r: 5 }}
+                        activeDot={{ r: 7 }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="Salário Líquido" 
+                        stroke="#BBF244" 
+                        strokeWidth={3}
+                        dot={{ fill: '#BBF244', r: 5 }}
+                        activeDot={{ r: 7 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="muted">Nenhum dado disponível para exibir</div>
+                )}
+              </div>
+            </section>
+
+            <section className="card">
+              <div className="card-title">Descontos e Benefícios</div>
+              <div className="card-body">
+                {folhas.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
+                      <XAxis 
+                        dataKey="referencia" 
+                        stroke="var(--muted)"
+                        style={{ fontSize: '0.85rem' }}
+                      />
+                      <YAxis 
+                        stroke="var(--muted)"
+                        style={{ fontSize: '0.85rem' }}
+                        tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend 
+                        wrapperStyle={{ paddingTop: '20px' }}
+                        iconType="square"
+                      />
+                      <Bar 
+                        dataKey="Benefícios" 
+                        fill="#94BF36"
+                        radius={[8, 8, 0, 0]}
+                      />
+                      <Bar 
+                        dataKey="Descontos" 
+                        fill="#F27244"
+                        radius={[8, 8, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="muted">Nenhum dado disponível para exibir</div>
+                )}
               </div>
             </section>
 
