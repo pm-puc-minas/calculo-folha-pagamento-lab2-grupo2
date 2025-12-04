@@ -23,3 +23,56 @@ body {
 * {
     box-sizing: border-box;
 }
+
+body.theme-dark {
+  --bg: #111827;
+  --bg-elevated: #1f2937;
+  --border: #374151;
+  --text: #f9fafb;
+  --muted: #9ca3af;
+}
+
+body.theme-dark {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+body.theme-dark .card {
+  background-color: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+body.theme-dark .sidebar {
+  background: #020617;
+  border-right-color: var(--border);
+}
+
+body.theme-dark .menu-item,
+body.theme-dark .card-title,
+body.theme-dark .welcome-title,
+body.theme-dark .welcome-subtitle {
+  color: var(--text);
+}
+
+body.theme-dark .menu-item {
+  color: var(--text);
+}
+
+body.theme-dark .menu-item.active,
+body.theme-dark .menu-item:hover {
+  background: #111827;
+  border-color: var(--border);
+}
+
+body.theme-dark .user-card {
+  background: #020617;
+  border-color: var(--border);
+}
+
+body.theme-dark .brand {
+  color: var(--text);
+}
+
+body.theme-dark .muted {
+  color: var(--muted);
+}

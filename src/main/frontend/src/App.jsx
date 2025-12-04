@@ -4,6 +4,8 @@ import Dashboard from './components/Dashboard';
 import Logout from './components/Logout';
 import SalaryHistory from './components/SalaryHistory';
 import AdminPage from './components/AdminPage';
+import HoursWorked from './components/HoursWorked';
+import SettingsPage from './components/SettingsPage';
 
 function PrivateRoute({ children }) {
   let user = null;
@@ -38,6 +40,22 @@ function App() {
           }
         />
         <Route
+          path="/horas"
+          element={
+            <PrivateRoute>
+              <HoursWorked />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/config"
+          element={
+            <PrivateRoute>
+              <SettingsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/admin"
           element={
             <PrivateRoute>
@@ -45,7 +63,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
