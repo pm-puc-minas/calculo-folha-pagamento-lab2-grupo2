@@ -17,7 +17,7 @@ export function Sidebar({ user }) {
       <nav className="menu">
         <NavLink to="/" end className="menu-item">Visão Geral</NavLink>
         <NavLink to="/salarios" className="menu-item">Histórico Salarial</NavLink>
-        <NavLink to="/horas" className="menu-item">Horas Trabalhadas</NavLink>
+        <NavLink to="/horas" className="menu-item">Consultar folhas</NavLink>
         <NavLink to="/config" className="menu-item">Configurações</NavLink>
         <NavLink to="/relatorios" className="menu-item">Relatórios</NavLink>
       </nav>
@@ -87,6 +87,10 @@ export default function Dashboard() {
     return ordenadas[ordenadas.length - 1];
   }, [folhas]);
 
+  const referenciaFolha = ultimaFolha
+    ? `${String(ultimaFolha.mesReferencia).padStart(2, '0')}/${ultimaFolha.anoReferencia}`
+    : '-';
+
   const salarioBase = funcionario?.salarioBase ?? 0;
   const salarioBruto = ultimaFolha?.salarioBruto ?? funcionario?.salarioBruto ?? 0;
   const salarioLiquido = ultimaFolha?.salarioLiquido ?? (salarioBruto - (Number(funcionario?.descontoINSS || 0)));
@@ -105,7 +109,10 @@ export default function Dashboard() {
             <div className="welcome-subtitle">Bem-vindo ao PayPaper. Você está acessando como {papel}.</div>
           </div>
           <header className="content-header">
-            <h1>Visão Geral</h1>
+            <div>
+              <h1>Visão Geral</h1>
+              <div className="folha-ref">Folha de referência: {referenciaFolha}</div>
+            </div>
             <div className="header-actions">
               <button className="btn primary">Baixar Relatório</button>
             </div>
