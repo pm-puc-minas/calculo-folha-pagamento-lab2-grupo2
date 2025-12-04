@@ -356,6 +356,23 @@
   margin-bottom: 16px;
 }
 
+/* Charts */
+.recharts-wrapper {
+  margin: 0 auto;
+}
+
+.recharts-legend-wrapper {
+  font-size: 0.9rem !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
+}
+
+.recharts-legend-item-text {
+  color: var(--text) !important;
+}
+
 @media (max-width: 980px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
