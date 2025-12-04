@@ -9,6 +9,56 @@ function formatBRL(v){
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v||0));
 }
 
+function CustomTooltip({ active, payload }) {
+  if (!active || !payload || !payload.length) return null;
+  const ref = payload[0].payload.referencia;
+  return (
+    <div
+      style={{
+        background: '#111827',
+        borderRadius: 8,
+        padding: 10,
+        boxShadow: '0 8px 18px rgba(0,0,0,0.45)',
+        border: '1px solid #374151',
+        minWidth: 140,
+      }}
+    >
+      <p
+        style={{
+          margin: '0 0 6px 0',
+          fontWeight: 700,
+          fontSize: '0.9rem',
+          color: '#BBF244',
+        }}
+      >
+        {ref}
+      </p>
+      {payload.map((entry, index) => (
+        <p
+          key={index}
+          style={{
+            margin: '2px 0',
+            fontSize: '0.8rem',
+            color: '#f9fafb',
+          }}
+        >
+          <span
+            style={{
+              display: 'inline-block',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: entry.color,
+              marginRight: 6,
+            }}
+          />
+          {entry.name}: {formatBRL(entry.value)}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export default function SalaryHistory(){
   const navigate = useNavigate();
   const login = localStorage.getItem('login');
@@ -42,35 +92,11 @@ export default function SalaryHistory(){
 
   const chartData = folhas.map(f => ({
     referencia: `${String(f.mesReferencia).padStart(2,'0')}/${f.anoReferencia}`,
-    'Salário Bruto': Number(f.salarioBruto || 0),
-    'Salário Líquido': Number(f.salarioLiquido || 0),
-    'Descontos': Number(f.totalDescontos || 0),
-    'Benefícios': Number(f.totalBeneficios || 0),
+    salarioBruto: Number(f.salarioBruto || 0),
+    salarioLiquido: Number(f.salarioLiquido || 0),
+    descontos: Number(f.totalDescontos || 0),
+    beneficios: Number(f.totalBeneficios || 0),
   }));
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div style={{
-          background: 'rgba(26, 26, 26, 0.95)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-        }}>
-          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: 'var(--accent)' }}>
-            {payload[0].payload.referencia}
-          </p>
-          {payload.map((entry, index) => (
-            <p key={index} style={{ margin: '4px 0', color: entry.color, fontSize: '0.9rem' }}>
-              {entry.name}: {formatBRL(entry.value)}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="dashboard-layout">
@@ -143,22 +169,22 @@ export default function SalaryHistory(){
                         tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
                       />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend 
+                      <Legend
                         wrapperStyle={{ paddingTop: '20px' }}
                         iconType="circle"
                       />
                       <Line 
                         type="monotone" 
-                        dataKey="Salário Bruto" 
-                        stroke="#94BF36" 
+                        dataKey="salarioBruto"
+                        stroke="#94BF36"
                         strokeWidth={3}
                         dot={{ fill: '#94BF36', r: 5 }}
                         activeDot={{ r: 7 }}
                       />
                       <Line 
                         type="monotone" 
-                        dataKey="Salário Líquido" 
-                        stroke="#BBF244" 
+                        dataKey="salarioLiquido"
+                        stroke="#BBF244"
                         strokeWidth={3}
                         dot={{ fill: '#BBF244', r: 5 }}
                         activeDot={{ r: 7 }}
@@ -188,18 +214,23 @@ export default function SalaryHistory(){
                         style={{ fontSize: '0.85rem' }}
                         tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
                       />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend 
+                      <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(15,23,42,0.2)' }} />
+                      <Legend
                         wrapperStyle={{ paddingTop: '20px' }}
                         iconType="square"
+                        formatter={(value) => {
+                          if (value === 'beneficios') return 'Benefícios';
+                          if (value === 'descontos') return 'Descontos';
+                          return value;
+                        }}
                       />
                       <Bar 
-                        dataKey="Benefícios" 
-                        fill="#94BF36"
+                        dataKey="beneficios"
+                        fill="#BBF244"
                         radius={[8, 8, 0, 0]}
                       />
-                      <Bar 
-                        dataKey="Descontos" 
+                      <Bar
+                        dataKey="descontos"
                         fill="#F27244"
                         radius={[8, 8, 0, 0]}
                       />
@@ -207,42 +238,6 @@ export default function SalaryHistory(){
                   </ResponsiveContainer>
                 ) : (
                   <div className="muted">Nenhum dado disponível para exibir</div>
-                )}
-              </div>
-            </section>
-
-            <section className="card">
-              <div className="card-title">Tabela</div>
-              <div className="card-body">
-                {folhas.length ? (
-                  <div style={{overflowX:'auto'}}>
-                    <table style={{width:'100%', borderCollapse:'collapse'}}>
-                      <thead>
-                        <tr>
-                          <th style={{textAlign:'left', padding:'8px'}}>Referência</th>
-                          <th style={{textAlign:'right', padding:'8px'}}>Bruto</th>
-                          <th style={{textAlign:'right', padding:'8px'}}>Adicionais</th>
-                          <th style={{textAlign:'right', padding:'8px'}}>Benefícios</th>
-                          <th style={{textAlign:'right', padding:'8px'}}>Descontos</th>
-                          <th style={{textAlign:'right', padding:'8px'}}>Líquido</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {folhas.map((f,i)=> (
-                          <tr key={i} style={{borderTop:'1px solid var(--border)'}}>
-                            <td style={{padding:'8px'}}>{String(f.mesReferencia).padStart(2,'0')}/{f.anoReferencia}</td>
-                            <td style={{padding:'8px', textAlign:'right'}}>{formatBRL(f.salarioBruto)}</td>
-                            <td style={{padding:'8px', textAlign:'right'}}>{formatBRL(f.totalAdicionais)}</td>
-                            <td style={{padding:'8px', textAlign:'right'}}>{formatBRL(f.totalBeneficios)}</td>
-                            <td style={{padding:'8px', textAlign:'right'}}>{formatBRL(f.totalDescontos)}</td>
-                            <td style={{padding:'8px', textAlign:'right'}}>{formatBRL(f.salarioLiquido)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="muted">Nenhuma folha encontrada</div>
                 )}
               </div>
             </section>

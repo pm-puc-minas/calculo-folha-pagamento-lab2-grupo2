@@ -18,7 +18,6 @@ export function Sidebar({ user }) {
         <NavLink to="/" end className="menu-item">Visão Geral</NavLink>
         <NavLink to="/salarios" className="menu-item">Histórico Salarial</NavLink>
         <NavLink to="/horas" className="menu-item">Consultar folhas</NavLink>
-        <NavLink to="/config" className="menu-item">Configurações</NavLink>
         <NavLink to="/relatorios" className="menu-item">Relatórios</NavLink>
       </nav>
       <div className="sidebar-footer">

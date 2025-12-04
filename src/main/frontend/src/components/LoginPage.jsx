@@ -7,6 +7,7 @@ function LoginPage() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const navigate = useNavigate();
 
+
     const handleChange = (event) => {
         const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -24,7 +25,7 @@ function LoginPage() {
                 localStorage.setItem('login', formData.email);
                 if (response.data) {
                     localStorage.setItem('user', JSON.stringify(response.data));
-                    const perm = Number(response.data.permissao)
+                    const perm = Number(response.data.permissao);
                     if (perm === 2) { navigate('/admin', { replace: true }); return; }
                 }
                 navigate('/', { replace: true });
@@ -70,10 +71,6 @@ function LoginPage() {
                     </div>
 
                     <div className="options-group">
-                        <div className="remember-me">
-                            <input type="checkbox" id="remember" />
-                            <label htmlFor="remember">Lembrar de mim?</label>
-                        </div>
                         <a href="#" className="forgot-password">Esqueceu sua senha?</a>
                     </div>
 

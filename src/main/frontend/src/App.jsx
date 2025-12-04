@@ -5,7 +5,6 @@ import Logout from './components/Logout';
 import SalaryHistory from './components/SalaryHistory';
 import AdminPage from './components/AdminPage';
 import HoursWorked from './components/HoursWorked';
-import SettingsPage from './components/SettingsPage';
 
 function PrivateRoute({ children }) {
   let user = null;
@@ -44,14 +43,6 @@ function App() {
           element={
             <PrivateRoute>
               <HoursWorked />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/config"
-          element={
-            <PrivateRoute>
-              <SettingsPage />
             </PrivateRoute>
           }
         />
