@@ -1,7 +1,15 @@
 package com.rh.folhaPagamento.service;
 
 import com.rh.folhaPagamento.model.Funcionario;
-import com.rh.folhaPagamento.service.calculation.*;
+// Importações de Adicionais e VA (que permanecem no pacote 'calculation')
+import com.rh.folhaPagamento.service.calculation.CalculoInsalubridade;
+import com.rh.folhaPagamento.service.calculation.CalculoPericulosidade;
+import com.rh.folhaPagamento.service.calculation.CalculoValeAlimentacao;
+// ⭐️ IMPORTAÇÕES DAS NOVAS CLASSES STRATEGY (Seu pacote 'strategy')
+import com.rh.folhaPagamento.strategy.CalculoINSS;
+import com.rh.folhaPagamento.strategy.CalculoIRRF;
+import com.rh.folhaPagamento.strategy.CalculoVT;
+
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -13,26 +21,32 @@ import java.util.List;
 @Service
 public class folhaPagamentoService {
 
+    // Adicionais e VA mantidos
     private final CalculoInsalubridade calculoInsalubridade;
     private final CalculoPericulosidade calculoPericulosidade;
     private final CalculoValeAlimentacao calculoVA;
-    private final CalculoValeTransporte calculoVT;
-    private final CalculoINSS calculoINSS;
-    private final CalculoIRRF calculoIRRF;
+
+    // ⭐️ INJEÇÃO DOS NOVOS OBJETOS STRATEGY
+    private final CalculoVT calculoVTStrategy;
+    private final CalculoINSS calculoINSSStrategy;
+    private final CalculoIRRF calculoIRRFStrategy;
+
 
     public folhaPagamentoService(
             CalculoInsalubridade calculoInsalubridade,
             CalculoPericulosidade calculoPericulosidade,
             CalculoValeAlimentacao calculoVA,
-            CalculoValeTransporte calculoVT,
-            CalculoINSS calculoINSS,
-            CalculoIRRF calculoIRRF) {
+            // ⭐️ O CONSTRUTOR AGORA INJETA SUAS NOVAS CLASSES STRATEGY
+            CalculoVT calculoVTStrategy,
+            CalculoINSS calculoINSSStrategy,
+            CalculoIRRF calculoIRRFStrategy) {
         this.calculoInsalubridade = calculoInsalubridade;
         this.calculoPericulosidade = calculoPericulosidade;
         this.calculoVA = calculoVA;
-        this.calculoVT = calculoVT;
-        this.calculoINSS = calculoINSS;
-        this.calculoIRRF = calculoIRRF;
+        // ⭐️ ATRIBUIÇÃO DOS NOVOS OBJETOS STRATEGY
+        this.calculoVTStrategy = calculoVTStrategy;
+        this.calculoINSSStrategy = calculoINSSStrategy;
+        this.calculoIRRFStrategy = calculoIRRFStrategy;
     }
 
     public static class DetalheCalculo implements Serializable {
@@ -73,6 +87,7 @@ public class folhaPagamentoService {
         BigDecimal valorInsalubridade = BigDecimal.ZERO;
         BigDecimal valorPericulosidade = BigDecimal.ZERO;
 
+        // CÁLCULO DE ADICIONAIS (Mantido)
         if (funcionario.isAptoPericulosidade()) {
             valorPericulosidade = calculoPericulosidade.calcular(funcionario);
             adicionais.add(valorPericulosidade);
@@ -88,17 +103,28 @@ public class folhaPagamentoService {
         BigDecimal salarioBruto = salarioBase.add(totalAdicionais);
         funcionario.setSalarioBruto(salarioBruto);
 
-        BigDecimal descontoINSS = calculoINSS.calcular(funcionario, diasUteis);
-        BigDecimal descontoIRRF = calculoIRRF.calcular(funcionario, diasUteis);
+        // ⭐️ CÁLCULO DE DESCONTOS (USANDO STRATEGIES)
+
+        // 1. Calcula INSS (usa a Strategy)
+        BigDecimal descontoINSS = calculoINSSStrategy.calcular(funcionario, diasUteis);
+        // Salva o INSS no objeto para que o IRRF possa usá-lo
+        funcionario.setDescontoINSS(descontoINSS);
+
+        // 2. Calcula IRRF (usa a Strategy)
+        BigDecimal descontoIRRF = calculoIRRFStrategy.calcular(funcionario, diasUteis);
+
+        // 3. Calcula VT (usa a Strategy)
+        // ⚠️ CORREÇÃO DA LÓGICA DE CHAMADA:
+        // Se o funcionário usa VT, chama a Strategy. Caso contrário, é ZERO.
         BigDecimal valorValeTransporte = funcionario.isValeTransporte()
-                ? calculoVT.calcular(funcionario, diasUteis)
+                ? calculoVTStrategy.calcular(funcionario, diasUteis)
                 : BigDecimal.ZERO;
 
         List<BigDecimal> descontos = List.of(descontoINSS, descontoIRRF, valorValeTransporte);
         BigDecimal totalDescontos = descontos.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        funcionario.setDescontoINSS(descontoINSS);
+        // CÁLCULO DE BENEFÍCIOS E LIQUIDO (Mantido)
 
         BigDecimal valorValeAlimentacao = funcionario.isValeAlimentacao()
                 ? calculoVA.calcular(funcionario, diasUteis)
@@ -111,6 +137,7 @@ public class folhaPagamentoService {
         BigDecimal salarioLiquido = salarioBruto.subtract(totalDescontos);
         BigDecimal totalAPagar = salarioLiquido.add(totalBeneficios);
 
+        // PREENCHIMENTO DO DETALHECALCULO (Mantido)
         DetalheCalculo r = new DetalheCalculo();
         r.salarioBase = salarioBase.setScale(2, RoundingMode.HALF_UP);
         r.salarioBruto = salarioBruto.setScale(2, RoundingMode.HALF_UP);

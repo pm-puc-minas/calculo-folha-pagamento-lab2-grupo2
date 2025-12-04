@@ -1,7 +1,7 @@
 package com.rh.folhaPagamento;
 
 import com.rh.folhaPagamento.model.Funcionario;
-import com.rh.folhaPagamento.service.calculation.CalculoValeTransporte;
+import com.rh.folhaPagamento.strategy.CalculoValeTransporte;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

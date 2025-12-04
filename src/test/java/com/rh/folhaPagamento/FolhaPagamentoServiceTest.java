@@ -7,6 +7,9 @@ import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 // ADICIONADO: Import do novo serviço que precisa ser mockado
 import com.rh.folhaPagamento.service.ArquivoService;
 
+import com.rh.folhaPagamento.strategy.CalculoINSS;
+import com.rh.folhaPagamento.strategy.CalculoIRRF;
+import com.rh.folhaPagamento.strategy.CalculoValeTransporte;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
