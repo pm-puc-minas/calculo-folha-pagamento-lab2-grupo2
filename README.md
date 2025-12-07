@@ -27,3 +27,9 @@ O projeto foca em fornecer uma ferramenta **robusta e funcional**, com ênfase e
 - **Folha de Pagamento:** automação completa do cálculo salarial, gerenciando de forma precisa descontos, benefícios e proventos (incluindo horas extras e adicionais).  
 
 O objetivo principal é **elevar a eficiência e garantir a conformidade legal** nas rotinas de RH, simplificando o gerenciamento de informações e reduzindo erros manuais.  
+
+## Como rodar
+
+-Comandos: dockerr compose up -d --build
+-usuário para o Login de administrador: Admin
+-Senha para o Login de administrador: Admin
