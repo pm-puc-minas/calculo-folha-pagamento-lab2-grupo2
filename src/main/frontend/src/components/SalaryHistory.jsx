@@ -61,7 +61,10 @@ function CustomTooltip({ active, payload }) {
 
 export default function SalaryHistory(){
   const navigate = useNavigate();
-  const login = localStorage.getItem('login');
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
+  })();
+  const login = storedUser?.login || localStorage.getItem('login');
   const [funcionario, setFuncionario] = useState(null);
   const [folhas, setFolhas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,15 +101,20 @@ export default function SalaryHistory(){
     beneficios: Number(f.totalBeneficios || 0),
   }));
 
+  const user = funcionario ? {
+    ...funcionario,
+    permissao: funcionario.usuario?.permissao
+  } : null;
+
   return (
     <div className="dashboard-layout">
-      <Sidebar user={funcionario} />
+      <Sidebar user={user} />
       <main className="content">
         <div className="content-wrap">
           <header className="content-header">
             <h1>Histórico Salarial</h1>
             <div className="header-actions">
-              {login && (
+              {login && folhas.length > 0 && (
                 <a
                   className="btn primary"
                   href={`data:text/csv;charset=utf-8,${encodeURIComponent(['Mes/Ano','Bruto','Adicionais','Beneficios','Descontos','Liquido'].join(';')+'\n'+folhas.map(f=>[
@@ -118,7 +126,9 @@ export default function SalaryHistory(){
                     f.salarioLiquido
                   ].join(';')).join('\n'))}`}
                   download={`historico_${login}.csv`}
-                >Baixar Relatório</a>
+                >
+                  📥 Baixar Relatório
+                </a>
               )}
             </div>
           </header>
@@ -181,8 +191,8 @@ export default function SalaryHistory(){
                         dot={{ fill: '#94BF36', r: 5 }}
                         activeDot={{ r: 7 }}
                       />
-                      <Line 
-                        type="monotone" 
+                      <Line
+                        type="monotone"
                         dataKey="salarioLiquido"
                         stroke="#BBF244"
                         strokeWidth={3}
@@ -192,52 +202,43 @@ export default function SalaryHistory(){
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="muted">Nenhum dado disponível para exibir</div>
+                  <div className="empty-state">Nenhum dado disponível para exibição.</div>
                 )}
               </div>
             </section>
 
             <section className="card">
-              <div className="card-title">Descontos e Benefícios</div>
+              <div className="card-title">Folhas de Pagamento</div>
               <div className="card-body">
-                {folhas.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
-                      <XAxis 
-                        dataKey="referencia" 
-                        stroke="var(--muted)"
-                        style={{ fontSize: '0.85rem' }}
-                      />
-                      <YAxis 
-                        stroke="var(--muted)"
-                        style={{ fontSize: '0.85rem' }}
-                        tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
-                      />
-                      <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(15,23,42,0.2)' }} />
-                      <Legend
-                        wrapperStyle={{ paddingTop: '20px' }}
-                        iconType="square"
-                        formatter={(value) => {
-                          if (value === 'beneficios') return 'Benefícios';
-                          if (value === 'descontos') return 'Descontos';
-                          return value;
-                        }}
-                      />
-                      <Bar 
-                        dataKey="beneficios"
-                        fill="#BBF244"
-                        radius={[8, 8, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="descontos"
-                        fill="#F27244"
-                        radius={[8, 8, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
+                {loading ? (
+                  <div>Carregando...</div>
+                ) : folhas.length === 0 ? (
+                  <div className="empty-state">Nenhuma folha de pagamento encontrada.</div>
                 ) : (
-                  <div className="muted">Nenhum dado disponível para exibir</div>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Mês/Ano</th>
+                        <th>Bruto</th>
+                        <th>Adicionais</th>
+                        <th>Benefícios</th>
+                        <th>Descontos</th>
+                        <th>Líquido</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {folhas.map(f => (
+                        <tr key={`${f.mesReferencia}/${f.anoReferencia}`}>
+                          <td>{`${String(f.mesReferencia).padStart(2,'0')}/${f.anoReferencia}`}</td>
+                          <td>{formatBRL(f.salarioBruto)}</td>
+                          <td>{formatBRL(f.totalAdicionais)}</td>
+                          <td>{formatBRL(f.totalBeneficios)}</td>
+                          <td>{formatBRL(f.totalDescontos)}</td>
+                          <td className="highlight-value">{formatBRL(f.salarioLiquido)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
             </section>

@@ -58,9 +58,14 @@ export default function HoursWorked() {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v || 0));
   }
 
+  const user = funcionario ? {
+    ...funcionario,
+    permissao: funcionario.usuario?.permissao
+  } : null;
+
   return (
     <div className="dashboard-layout">
-      <Sidebar user={funcionario} />
+      <Sidebar user={user} />
       <main className="content">
         <div className="content-wrap">
           <header className="content-header">

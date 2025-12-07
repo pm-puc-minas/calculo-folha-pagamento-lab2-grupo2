@@ -1,0 +1,295 @@
+.func-table,
+.folhas-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.func-table th,
+.func-table td,
+.folhas-table th,
+.folhas-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #2a2a2a;
+  text-align: left;
+  color: #f5f5f5;
+}
+
+.func-table th,
+.folhas-table th {
+  font-weight: 700;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+  color: #bbf244;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.func-table tbody tr,
+.folhas-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.func-table tbody tr:hover,
+.folhas-table tbody tr:hover {
+  background: #252525;
+  transform: translateX(2px);
+}
+
+.folhas-table td {
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #f5f5f5;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.actions button:hover {
+  background: #2a2a2a;
+  border-color: #bbf244;
+  color: #bbf244;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(187, 242, 68, 0.15);
+}
+
+.actions button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.actions .danger {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background: transparent;
+}
+
+.actions .danger:hover {
+  background: rgba(255, 107, 107, 0.15);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.2);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #111;
+  color: #f5f5f5;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  background: #111;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.5rem;
+}
+
+.edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-form input,
+.edit-form select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #181818;
+  color: #f5f5f5;
+}
+
+.edit-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+}
+
+.modal-actions {
+  grid-column: 1 / -1;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.folhas-gestao .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.folhas-gestao label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.folhas-gestao input {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #181818;
+  color: #f5f5f5;
+}
+
+.nova-folha-form {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nova-folha-form .row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.nova-folha-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 150px;
+  font-weight: 600;
+  color: #f5f5f5;
+}
+
+.nova-folha-form input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #0d0d0d;
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.nova-folha-form input:focus {
+  outline: none;
+  border-color: #bbf244;
+  box-shadow: 0 0 0 3px rgba(187, 242, 68, 0.15);
+}
+
+.nova-folha-form button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #bbf244 0%, #94bf36 100%);
+  color: #0d0d0d;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(187, 242, 68, 0.3);
+}
+
+.nova-folha-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(187, 242, 68, 0.4);
+}
+
+.folhas-table td {
+  color: #e5e7eb;
+}
+
+.folhas-table tbody tr:hover {
+  background: #1f2933;
+}
+
+.nova-folha-form .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.nova-folha-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #f5f5f5;
+}
+
+.nova-folha-form input {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #181818;
+  color: #f5f5f5;
+}
+
+.nova-folha-form button[type="submit"] {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid #6ee7b7;
+  background: #16a34a;
+  color: #0b0b0b;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nova-folha-form button[type="submit"]:hover {
+  background: #22c55e;
+}
+
+/* remover setas dos inputs numéricos (WebKit) */
+.nova-folha-form input[type="number"]::-webkit-outer-spin-button,
+.nova-folha-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* remover setas dos inputs numéricos (Firefox) */
+.nova-folha-form input[type="number"] {
+  -moz-appearance: textfield;
+}

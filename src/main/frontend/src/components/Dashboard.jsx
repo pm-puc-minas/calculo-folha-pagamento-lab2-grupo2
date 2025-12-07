@@ -4,6 +4,7 @@ import './Dashboard.css';
 import { api } from '../services/api';
 
 export function Sidebar({ user }) {
+  const isManager = user?.permissao === 1;
   return (
     <aside className="sidebar">
       <div className="brand">PayPaper</div>
@@ -18,6 +19,7 @@ export function Sidebar({ user }) {
         <NavLink to="/" end className="menu-item">Visão Geral</NavLink>
         <NavLink to="/salarios" className="menu-item">Histórico Salarial</NavLink>
         <NavLink to="/horas" className="menu-item">Consultar folhas</NavLink>
+        {isManager && <NavLink to="/funcionarios" className="menu-item">Funcionarios</NavLink>}
         <NavLink to="/relatorios" className="menu-item">Relatórios</NavLink>
       </nav>
       <div className="sidebar-footer">
@@ -38,19 +40,23 @@ function Card({ title, children }) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const login = localStorage.getItem('login');
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
+  })();
+  const login = storedUser?.login || localStorage.getItem('login');
   const [funcionario, setFuncionario] = useState(null);
   const [folhas, setFolhas] = useState([]);
-  const [irrf, setIrrf] = useState(0);
+  const [folhaSelecionada, setFolhaSelecionada] = useState(null);
 
-  const userInfo = useMemo(()=>{ try{ return JSON.parse(localStorage.getItem('user')||'null') }catch{ return null } },[]);
+  const userInfo = storedUser;
+
   const papel = userInfo?.permissao === 2 ? 'administrador' : (userInfo?.permissao === 1 ? 'gestor' : 'funcionário');
-  const saudacao = useMemo(()=>{ const h=new Date().getHours(); return h<12?'Bom dia':(h<18?'Boa tarde':'Boa noite') },[]);
+  const saudacao = useMemo(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : (h < 18 ? 'Boa tarde' : 'Boa noite') }, []);
   const nomeExibicao = funcionario?.nome || userInfo?.login || 'Usuário';
 
   useEffect(() => {
     async function load() {
-      if(!login){
+      if (!login) {
         navigate('/login', { replace: true });
         return;
       }
@@ -61,42 +67,48 @@ export default function Dashboard() {
         ]);
         const fData = fRes.data;
         setFuncionario(fData);
-        setFolhas(folhasRes.data || []);
-        if (fData) {
-          const det = await api.post('/folha/calcular', { funcionario: fData, diasUteis: 22 });
-          setIrrf(Number(det.data?.descontoIRRF || 0));
+        const folhasData = Array.isArray(folhasRes.data) ? folhasRes.data : [];
+        setFolhas(folhasData);
+        if (folhasData.length > 0) {
+          const ordenadas = [...folhasData].sort((a, b) => {
+            if (a.anoReferencia !== b.anoReferencia) {
+              return a.anoReferencia - b.anoReferencia;
+            }
+            return a.mesReferencia - b.mesReferencia;
+          });
+          setFolhaSelecionada(ordenadas[ordenadas.length - 1]);
         }
       } catch (e) {
-        console.error(e);
+        console.error('Erro ao carregar dados:', e);
       }
     }
     load();
   }, [login, navigate]);
 
-  const user = funcionario || JSON.parse(localStorage.getItem('user') || 'null');
+  const user = useMemo(() => {
+    if (funcionario) {
+      return {
+        ...funcionario,
+        permissao: funcionario.usuario?.permissao
+      };
+    }
+    return userInfo;
+  }, [funcionario, userInfo]);
 
-  const ultimaFolha = useMemo(() => {
-    if (!folhas || !folhas.length) return null;
-    const ordenadas = [...folhas].sort((a, b) => {
-      if ((a.anoReferencia || 0) !== (b.anoReferencia || 0)) {
-        return (a.anoReferencia || 0) - (b.anoReferencia || 0);
-      }
-      return (a.mesReferencia || 0) - (b.mesReferencia || 0);
-    });
-    return ordenadas[ordenadas.length - 1];
-  }, [folhas]);
+  const folhaExibida = folhaSelecionada || (folhas.length > 0 ? folhas[folhas.length - 1] : null);
 
-  const referenciaFolha = ultimaFolha
-    ? `${String(ultimaFolha.mesReferencia).padStart(2, '0')}/${ultimaFolha.anoReferencia}`
+  const referenciaFolha = folhaExibida
+    ? `${String(folhaExibida.mesReferencia).padStart(2, '0')}/${folhaExibida.anoReferencia}`
     : '-';
 
   const salarioBase = funcionario?.salarioBase ?? 0;
-  const salarioBruto = ultimaFolha?.salarioBruto ?? funcionario?.salarioBruto ?? 0;
-  const salarioLiquido = ultimaFolha?.salarioLiquido ?? (salarioBruto - (Number(funcionario?.descontoINSS || 0)));
+  const salarioBruto = folhaExibida?.salarioBruto ?? 0;
+  const salarioLiquido = folhaExibida?.salarioLiquido ?? 0;
 
-  const inss = Number(funcionario?.descontoINSS || 0);
-  const totalDescontosFolha = Number(ultimaFolha?.totalDescontos || 0);
-  const valeTransporteDesconto = Math.max(totalDescontosFolha - inss - Number(irrf || 0), 0);
+  const inss = folhaExibida?.descontoINSS ?? Number(funcionario?.descontoINSS || 0);
+  const totalDescontosFolha = Number(folhaExibida?.totalDescontos || 0);
+  const irrfExibido = folhaExibida?.descontoIRRF ?? 0;
+  const valeTransporteDesconto = folhaExibida?.descontoValeTransporte ?? 0;
 
   return (
     <div className="dashboard-layout">
@@ -108,29 +120,63 @@ export default function Dashboard() {
             <div className="welcome-subtitle">Bem-vindo ao PayPaper. Você está acessando como {papel}.</div>
           </div>
           <header className="content-header">
-            <div>
-              <h1>Visão Geral</h1>
-              <div className="folha-ref">Folha de referência: {referenciaFolha}</div>
-            </div>
-            <div className="header-actions">
-              <button className="btn primary">Baixar Relatório</button>
-            </div>
+            <h1>Visão Geral</h1>
           </header>
 
           <div className="sections">
+            {folhas.length > 0 ? (
+              <div className="folha-selector">
+                <label htmlFor="folha-select">Selecionar folha:</label>
+                <select
+                  id="folha-select"
+                  className="folha-dropdown"
+                  value={folhaSelecionada?.id || ''}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    if (selectedId) {
+                      const selectedFolha = folhas.find(f => f.id === Number(selectedId));
+                      setFolhaSelecionada(selectedFolha);
+                    } else {
+                      if (folhas.length > 0) {
+                        const ordenadas = [...folhas].sort((a, b) => {
+                          if (a.anoReferencia !== b.anoReferencia) {
+                            return a.anoReferencia - b.anoReferencia;
+                          }
+                          return a.mesReferencia - b.mesReferencia;
+                        });
+                        setFolhaSelecionada(ordenadas[ordenadas.length - 1]);
+                      }
+                    }
+                  }}
+                >
+                  <option value="">Última folha</option>
+                  {folhas.map(folha => (
+                    <option key={folha.id} value={folha.id}>
+                      {`${String(folha.mesReferencia).padStart(2, '0')}/${folha.anoReferencia}`}
+                    </option>
+                  ))}
+                </select>
+                <span className="folha-info">({folhas.length} folha{folhas.length > 1 ? 's' : ''} disponível{folhas.length > 1 ? 'is' : ''})</span>
+              </div>
+            ) : (
+              <div className="folha-selector">
+                <p className="muted">Nenhuma folha de pagamento encontrada para este usuário.</p>
+              </div>
+            )}
+
             <section className="grid grid-2">
-              <Card title="Proventos">
+              <Card title="Informações Salariais">
                 <ul className="list">
                   <li>Salário base: R$ {Number(salarioBase).toFixed(2)}</li>
                   <li>Periculosidade: {funcionario?.aptoPericulosidade ? 'Sim' : 'Não'}</li>
-                  <li>Insalubridade: {funcionario?.grauInsalubridade ?? 0}%</li>
+                  <li>Insalubridade: {funcionario?.grauInsalubridade > 0 ? `Grau ${funcionario.grauInsalubridade}` : 'Não'}</li>
                 </ul>
               </Card>
               <Card title="Descontos">
                 <ul className="list">
-                  <li>INSS: R$ {inss.toFixed(2)}</li>
-                  <li>IRRF: R$ {Number(irrf).toFixed(2)}</li>
-                  <li>Vale transporte: R$ {valeTransporteDesconto.toFixed(2)}</li>
+                  <li>INSS: R$ {Number(inss).toFixed(2)}</li>
+                  <li>IRRF: R$ {Number(irrfExibido).toFixed(2)}</li>
+                  <li>Vale Transporte: R$ {Number(valeTransporteDesconto).toFixed(2)}</li>
                   <li>Total descontos: R$ {totalDescontosFolha.toFixed(2)}</li>
                 </ul>
               </Card>
@@ -141,7 +187,7 @@ export default function Dashboard() {
                 <div className="kpi">R$ {Number(salarioBruto).toFixed(2)}</div>
               </Card>
               <Card title="Salário por hora">
-                <div className="kpi">R$ {(Number(salarioBase)/220).toFixed(2)}</div>
+                <div className="kpi">R$ {(Number(salarioBase) / 220).toFixed(2)}</div>
               </Card>
               <Card title="Salário líquido">
                 <div className="kpi success">R$ {Number(salarioLiquido).toFixed(2)}</div>
@@ -153,3 +199,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

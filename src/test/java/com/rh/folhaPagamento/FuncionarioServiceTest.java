@@ -11,8 +11,6 @@ import com.rh.folhaPagamento.repository.UsuarioRepository;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 import com.rh.folhaPagamento.service.FuncionarioService;
 import com.rh.folhaPagamento.service.folhaPagamentoService;
-
-// ADICIONADO: Import do novo serviço
 import com.rh.folhaPagamento.service.ArquivoService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -72,11 +70,11 @@ class FuncionarioServiceTest {
     void setUp() {
 
         detalheCalculoMock = new DetalheCalculo(
-                new BigDecimal("5000.00"), // Salário Bruto
-                new BigDecimal("100.00"),  // Total Adicionais
-                new BigDecimal("50.00"),   // Total Benefícios
-                new BigDecimal("1000.00"), // Total Descontos
-                new BigDecimal("4150.00")  // Salário Líquido
+                new BigDecimal("5000.00"),
+                new BigDecimal("100.00"),
+                new BigDecimal("50.00"),
+                new BigDecimal("1000.00"),
+                new BigDecimal("4150.00")
         );
     }
 
@@ -135,9 +133,7 @@ class FuncionarioServiceTest {
 
 
         verify(usuarioRepository, times(1)).save(any(Usuario.class));
-        verify(usuarioRepository, times(1)).flush(); // Verifica o flush
-
-        // CORRIGIDO: Adicionado anyInt() para mes e ano
+        verify(usuarioRepository, times(1)).flush();
         verify(folhaService, times(1)).calcularFolha(any(Funcionario.class), eq(22), anyInt(), anyInt());
         verify(funcionarioRepository, times(1)).save(any(Funcionario.class));
 
@@ -234,7 +230,6 @@ class FuncionarioServiceTest {
     @Test
     @DisplayName("Teste 6: Deve filtrar funcionários por substring no cargo (case-insensitive)")
     void filtrarPorCargo_FiltrarSubstring() {
-        // ARRANGE
         Funcionario f1 = criarFuncionario(1, "Alice", "Desenvolvedor Java");
         Funcionario f2 = criarFuncionario(2, "Bob", "Analista de Dados");
         Funcionario f3 = criarFuncionario(3, "Charlie", "Desenvolvedor Front");

@@ -43,8 +43,6 @@ class FolhaPagamentoServiceTest {
     private Funcionario funcionario;
     private final int DIAS_UTEIS = 22;
     private final BigDecimal SALARIO_BASE_TESTE = new BigDecimal("3000.00");
-
-    // ADICIONADO: Constantes de data para o método
     private final int MES_TESTE = 11;
     private final int ANO_TESTE = 2025;
 
@@ -85,33 +83,18 @@ class FolhaPagamentoServiceTest {
 
     @Test
     void deveIncluirAdicionalPericulosidade_e_Beneficios() {
-        // CENÁRIO: Com Periculosidade, VT e VA
-
         funcionario.setAptoPericulosidade(true);
         funcionario.setValeTransporte(true);
         funcionario.setValeAlimentacao(true);
 
-        // Mocks de Valores
-        when(calculoPericulosidade.calcular(any(Funcionario.class))).thenReturn(new BigDecimal("900.00")); // Adicional (30% de 3000)
-        when(calculoINSS.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("450.00")); // INSS simulado
-        when(calculoIRRF.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("300.00")); // IRRF simulado
-        when(calculoVT.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("180.00")); // Desconto VT (6% de 3000)
-        when(calculoVA.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("440.00")); // Benefício VA
-
-        /* CÁLCULO ESPERADO */
-        // Salário Bruto = 3000.00 + 900.00 (Periculosidade) = 3900.00
-
-        // Total Descontos = 450.00 (INSS) + 300.00 (IRRF) + 180.00 (VT) = 930.00
-
-        // Total Benefícios = 440.00 (VA)
-
-        // Salário Líquido = 3900.00 - 930.00 = 2970.00
-
-        // Total a Pagar = 2970.00 (Líquido) + 440.00 (Benefício) = 3410.00
+        when(calculoPericulosidade.calcular(any(Funcionario.class))).thenReturn(new BigDecimal("900.00"));
+        when(calculoINSS.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("450.00"));
+        when(calculoIRRF.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("300.00"));
+        when(calculoVT.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("180.00"));
+        when(calculoVA.calcular(any(Funcionario.class), anyInt())).thenReturn(new BigDecimal("440.00"));
 
         BigDecimal resultadoEsperado = new BigDecimal("3410.00").setScale(2, RoundingMode.HALF_UP);
 
-        // CORRIGIDO: Adicionado mes e ano na chamada
         DetalheCalculo r = service.calcularFolha(funcionario, DIAS_UTEIS, MES_TESTE, ANO_TESTE);
         BigDecimal resultadoAtual = r.totalAPagar;
 

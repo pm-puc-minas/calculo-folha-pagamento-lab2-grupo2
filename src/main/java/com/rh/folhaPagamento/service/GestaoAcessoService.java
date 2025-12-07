@@ -10,10 +10,8 @@ import java.util.Optional;
 public class GestaoAcessoService {
     private final UsuarioRepository usuarioRepository;
 
-    // ADICIONADO: Injeção do serviço de serialização
     private final ArquivoService arquivoService;
 
-    // ADICIONADO: Serviço de serialização no construtor
     public GestaoAcessoService(UsuarioRepository usuarioRepository, ArquivoService arquivoService) {
         this.usuarioRepository = usuarioRepository;
         this.arquivoService = arquivoService;

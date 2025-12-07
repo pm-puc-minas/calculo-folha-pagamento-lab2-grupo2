@@ -5,6 +5,8 @@ import Logout from './components/Logout';
 import SalaryHistory from './components/SalaryHistory';
 import AdminPage from './components/AdminPage';
 import HoursWorked from './components/HoursWorked';
+import FuncionariosPage from './components/FuncionariosPage';
+import GerirFolhasPage from './components/GerirFolhasPage';
 
 function PrivateRoute({ children }) {
   let user = null;
@@ -14,6 +16,16 @@ function PrivateRoute({ children }) {
     user = null;
   }
   return user ? children : <Navigate to="/login" replace />;
+}
+
+function ManagerRoute({ children }) {
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('user') || 'null');
+  } catch {
+    user = null;
+  }
+  return user && user.permissao === 1 ? children : <Navigate to="/" replace />;
 }
 
 function App() {
@@ -51,6 +63,26 @@ function App() {
           element={
             <PrivateRoute>
               <AdminPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/funcionarios"
+          element={
+            <PrivateRoute>
+              <ManagerRoute>
+                <FuncionariosPage />
+              </ManagerRoute>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/funcionarios/:id/folhas"
+          element={
+            <PrivateRoute>
+              <ManagerRoute>
+                <GerirFolhasPage />
+              </ManagerRoute>
             </PrivateRoute>
           }
         />
