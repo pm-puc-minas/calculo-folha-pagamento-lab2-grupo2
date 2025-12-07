@@ -31,5 +31,7 @@ O objetivo principal é **elevar a eficiência e garantir a conformidade legal**
 ## Como rodar
 
 -Comandos: dockerr compose up -d --build
+
 -usuário para o Login de administrador: Admin
+
 -Senha para o Login de administrador: Admin
