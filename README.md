@@ -30,8 +30,8 @@ O objetivo principal é **elevar a eficiência e garantir a conformidade legal**
 
 ## Como rodar
 
--Comandos: dockerr compose up -d --build
+- Comandos: docker compose up -d --build para rodar o projeto, com backend, frontend e BD.
 
--usuário para o Login de administrador: Admin
+- usuário para o Login de administrador: Admin
 
--Senha para o Login de administrador: Admin
+- Senha para o Login de administrador: Admin
