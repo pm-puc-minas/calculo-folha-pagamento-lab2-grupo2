@@ -70,18 +70,10 @@ function LoginPage() {
                         />
                     </div>
 
-                    <div className="options-group">
-                        <a href="#" className="forgot-password">Esqueceu sua senha?</a>
-                    </div>
-
                     <div className="actions-row">
                       <button type="submit" className="login-button">Entrar</button>
                     </div>
                 </form>
-
-                <p className="signup-link">
-                    Não se cadastrou ainda? <a href="#">Não perca tempo! ↗</a>
-                </p>
             </div>
         </div>
     );

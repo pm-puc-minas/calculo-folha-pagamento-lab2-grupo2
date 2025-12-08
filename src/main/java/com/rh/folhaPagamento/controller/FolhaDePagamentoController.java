@@ -5,8 +5,11 @@ import com.rh.folhaPagamento.model.FolhaDePagamento;
 import com.rh.folhaPagamento.repository.FolhaPagamentoRepository;
 import com.rh.folhaPagamento.service.folhaPagamentoService;
 import com.rh.folhaPagamento.service.FuncionarioService;
+import com.rh.folhaPagamento.service.RelatorioFolhaService;
 import com.rh.folhaPagamento.service.folhaPagamentoService.DetalheCalculo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -26,6 +29,9 @@ public class FolhaDePagamentoController {
 
     @Autowired
     private FolhaPagamentoRepository folhaPagamentoRepository;
+
+    @Autowired
+    private RelatorioFolhaService relatorioFolhaService;
 
     public static class DadosCalculoFolha {
         private Funcionario funcionario;
@@ -151,5 +157,22 @@ public class FolhaDePagamentoController {
             cursor = cursor.minusMonths(1);
         }
         return ResponseEntity.ok(geradas);
+    }
+
+    @GetMapping("/relatorio/{login}")
+    public ResponseEntity<byte[]> gerarRelatorioPdf(@PathVariable String login) {
+        var funcOpt = funcionarioService.buscarPorLogin(login);
+        if (funcOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Funcionario funcionario = funcOpt.get();
+        List<FolhaDePagamento> folhas = folhaPagamentoRepository.findByFuncionario(funcionario);
+        byte[] pdf = relatorioFolhaService.gerarPdf(funcionario.getNome(), login, folhas);
+
+        String filename = "historico_" + login + ".pdf";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 }

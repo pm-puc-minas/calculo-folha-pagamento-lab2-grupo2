@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { api, downloadRelatorioPdf } from '../services/api';
 import './Dashboard.css';
 import { Sidebar } from './Dashboard';
 import { useNavigate } from 'react-router-dom';
@@ -106,6 +106,25 @@ export default function SalaryHistory(){
     permissao: funcionario.usuario?.permissao
   } : null;
 
+  async function handleDownloadPdf() {
+    if (!login || !folhas.length) return;
+    try {
+      const blobData = await downloadRelatorioPdf(login);
+      const blob = new Blob([blobData], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `historico_${login}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+      alert('Não foi possível gerar o relatório em PDF.');
+    }
+  }
+
   return (
     <div className="dashboard-layout">
       <Sidebar user={user} />
@@ -115,20 +134,9 @@ export default function SalaryHistory(){
             <h1>Histórico Salarial</h1>
             <div className="header-actions">
               {login && folhas.length > 0 && (
-                <a
-                  className="btn primary"
-                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(['Mes/Ano','Bruto','Adicionais','Beneficios','Descontos','Liquido'].join(';')+'\n'+folhas.map(f=>[
-                    `${String(f.mesReferencia).padStart(2,'0')}/${f.anoReferencia}`,
-                    f.salarioBruto,
-                    f.totalAdicionais,
-                    f.totalBeneficios,
-                    f.totalDescontos,
-                    f.salarioLiquido
-                  ].join(';')).join('\n'))}`}
-                  download={`historico_${login}.csv`}
-                >
-                  📥 Baixar Relatório
-                </a>
+                <button type="button" className="btn primary" onClick={handleDownloadPdf}>
+                  📄 Baixar Relatório
+                </button>
               )}
             </div>
           </header>

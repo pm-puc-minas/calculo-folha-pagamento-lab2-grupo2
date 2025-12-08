@@ -20,7 +20,6 @@ export function Sidebar({ user }) {
         <NavLink to="/salarios" className="menu-item">Histórico Salarial</NavLink>
         <NavLink to="/horas" className="menu-item">Consultar folhas</NavLink>
         {isManager && <NavLink to="/funcionarios" className="menu-item">Funcionarios</NavLink>}
-        <NavLink to="/relatorios" className="menu-item">Relatórios</NavLink>
       </nav>
       <div className="sidebar-footer">
         <Link className="logout" to="/logout">Sair</Link>
@@ -199,4 +198,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
